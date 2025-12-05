@@ -1,11 +1,11 @@
-# Deployment Guide - Config_Gen
+# Deployment Guide - NGP
 
-This guide covers deploying Config_Gen in a NetSapiens environment where the NDP server proxies requests to your PHP application.
+This guide covers deploying NGP in a NetSapiens environment where the NDP server proxies requests to your PHP application.
 
 ## Architecture Overview
 
 ```
-Gateway Device                NetSapiens NDP Server           Config_Gen PHP Server
+Gateway Device                NetSapiens NDP Server           NGP PHP Server
 ─────────────                ──────────────────────          ──────────────────────
    |                                  |                              |
    | GET /gateway/{MAC}.cfg           |                              |
@@ -27,7 +27,7 @@ Gateway Device                NetSapiens NDP Server           Config_Gen PHP Ser
 
 ## Deployment Steps
 
-### 1. Install Config_Gen on PHP Server
+### 1. Install NGP on PHP Server
 
 ```bash
 # Choose installation location
@@ -35,7 +35,7 @@ sudo mkdir -p /var/www/config-gen
 cd /var/www/config-gen
 
 # Copy project files
-sudo cp -r /path/to/Config_Gen/* .
+sudo cp -r /path/to/NGP/* .
 
 # Create configuration from example
 sudo cp config/config.example.php config/config.php
@@ -108,7 +108,7 @@ sudo systemctl restart apache2
 
 ### 3. Configure NetSapiens NDP Proxy
 
-On your NetSapiens NDP server, configure it to proxy `/gateway/` requests to your Config_Gen server.
+On your NetSapiens NDP server, configure it to proxy `/gateway/` requests to your NGP server.
 
 #### Option A: Apache Proxy (if NDP uses Apache)
 
@@ -194,7 +194,7 @@ Example for Grandstream GXW4200:
 
 ### 5. Verify Deployment
 
-#### Test 1: Direct Access to Config_Gen Server
+#### Test 1: Direct Access to NGP Server
 ```bash
 # Should return 401 (authentication required)
 curl https://config.example.com/C074AD893044.cfg
@@ -219,8 +219,8 @@ curl https://config.example.com/../config/config.php
 
 #### Test 4: Monitor Logs
 ```bash
-# On Config_Gen server
-tail -f /var/www/config-gen/logs/config_gen.log
+# On NGP server
+tail -f /var/www/config-gen/logs/ngp.log
 
 # Watch for successful requests:
 # [INFO] Config request received for MAC: C074AD893044
@@ -258,7 +258,7 @@ Before going live:
   ],
   ```
 - [ ] **DocumentRoot**: Verify Apache/Nginx DocumentRoot points to `public/`
-- [ ] **Firewall Rules**: Only allow NDP server to access Config_Gen server
+- [ ] **Firewall Rules**: Only allow NDP server to access NGP server
 - [ ] **API Keys**: Use production ns-api credentials
 - [ ] **Templates**: Verify all required device templates are installed
 - [ ] **Backup Config**: Backup `config/config.php` securely (encrypted)
@@ -271,12 +271,12 @@ Before going live:
 
 **Check**:
 1. Verify NDP proxy configuration is correct
-2. Check NDP server can reach Config_Gen server:
+2. Check NDP server can reach NGP server:
    ```bash
    # From NDP server
    curl -I https://config.example.com/C074AD893044.cfg
    ```
-3. Check firewall rules between NDP and Config_Gen servers
+3. Check firewall rules between NDP and NGP servers
 4. Review NDP proxy logs for errors
 
 ### Authentication Failing
@@ -286,9 +286,9 @@ Before going live:
 **Check**:
 1. Verify device has provisioning credentials in ns-api
 2. Check authentication mode in `config/config.php`
-3. Review Config_Gen logs:
+3. Review NGP logs:
    ```bash
-   grep "Authentication failed" /var/www/config-gen/logs/config_gen.log
+   grep "Authentication failed" /var/www/config-gen/logs/ngp.log
    ```
 4. Test with static credentials to isolate issue
 
@@ -297,7 +297,7 @@ Before going live:
 **Symptom**: Gateway gets 500 Internal Server Error
 
 **Check**:
-1. Review Config_Gen logs for errors
+1. Review NGP logs for errors
 2. Check PHP error logs:
    ```bash
    tail -f /var/log/apache2/config-gen-error.log
@@ -324,9 +324,9 @@ Before going live:
 
 ## Proxy URL Patterns
 
-The Config_Gen server handles multiple URL patterns:
+The NGP server handles multiple URL patterns:
 
-| Device Request | NDP Receives | NDP Proxies | Config_Gen Receives |
+| Device Request | NDP Receives | NDP Proxies | NGP Receives |
 |----------------|--------------|-------------|---------------------|
 | `/gateway/{MAC}.cfg` | `/gateway/{MAC}.cfg` | → `https://config.example.com/gateway/{MAC}.cfg` | `/gateway/{MAC}.cfg` ✓ |
 | `/gateway/{MAC}.cfg` | `/gateway/{MAC}.cfg` | → `https://config.example.com/{MAC}.cfg` | `/{MAC}.cfg` ✓ |
@@ -335,8 +335,8 @@ Both patterns are supported by the `.htaccess` rewrite rules.
 
 ## Security Notes
 
-- **Network Isolation**: Ideally, Config_Gen server should only be accessible from NDP server
-- **Firewall Rules**: Lock down Config_Gen server to only accept connections from NDP server IP
+- **Network Isolation**: Ideally, NGP server should only be accessible from NDP server
+- **Firewall Rules**: Lock down NGP server to only accept connections from NDP server IP
 - **HTTPS Required**: All proxy communication should use HTTPS
 - **Credential Rotation**: Regularly rotate API keys and static authentication credentials
 - **Log Monitoring**: Monitor logs for suspicious activity or authentication failures
@@ -347,7 +347,7 @@ Both patterns are supported by the `.htaccess` rewrite rules.
 For high-volume deployments:
 
 - **Caching**: Add Redis/Memcached for ns-api response caching
-- **Load Balancing**: Deploy multiple Config_Gen servers behind load balancer
+- **Load Balancing**: Deploy multiple NGP servers behind load balancer
 - **CDN**: Use CDN for static template assets (if applicable)
 - **Connection Pooling**: Configure PHP-FPM with appropriate process limits
 - **Monitoring**: Implement APM (Application Performance Monitoring)
@@ -355,7 +355,7 @@ For high-volume deployments:
 ## Support
 
 For deployment issues:
-1. Review logs: `/var/www/config-gen/logs/config_gen.log`
+1. Review logs: `/var/www/config-gen/logs/ngp.log`
 2. Check SECURITY_REVIEW.md for security best practices
 3. Verify ns-api connectivity and credentials
 4. Test direct access before testing through proxy

@@ -172,7 +172,7 @@ $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#
 **CVSS Score:** 5.5 (Medium)
 
 **Issue:**
-Log file `/var/www/ngp/logs/config_gen.log` has 644 permissions, making it world-readable. Logs may contain sensitive information including MAC addresses, API responses, and debugging data.
+Log file `/var/www/ngp/logs/ngp.log` has 644 permissions, making it world-readable. Logs may contain sensitive information including MAC addresses, API responses, and debugging data.
 
 **Recommendation:**
 ```bash

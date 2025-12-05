@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Config_Gen is a configuration generation tool for grandstream GXW4200 Series gateways. It will be built to run on a web server, where configuration files will be requested in the form of {mac}.cfg where {mac} is an acutal mac address of a device. Using that mac address, we should query the ns-api to get the sip credentials, and fill in variables in a template that is stored on the server. The template should be able to use basic logic functions that are evaluated at configuration generation to set parameters.
+NGP is a configuration generation tool for grandstream GXW4200 Series gateways. It will be built to run on a web server, where configuration files will be requested in the form of {mac}.cfg where {mac} is an acutal mac address of a device. Using that mac address, we should query the ns-api to get the sip credentials, and fill in variables in a template that is stored on the server. The template should be able to use basic logic functions that are evaluated at configuration generation to set parameters.
 
 
 ## Development Commands
@@ -31,7 +31,7 @@ cd public && php -S localhost:8000
 curl -u username:password http://localhost:8000/C074AD7C6934.cfg
 
 # Monitor logs in real-time
-tail -f logs/config_gen.log
+tail -f logs/ngp.log
 
 # Test ns-api connectivity
 curl -H "Authorization: Bearer YOUR_API_KEY" https://api.example.com/phones/C074AD7C6934
@@ -54,10 +54,10 @@ sudo systemctl reload apache2
 ## Architecture
 
 ### Deployment Architecture
-Config_Gen operates as a backend service behind the NetSapiens NDP (Network Device Provisioning) server:
+NGP operates as a backend service behind the NetSapiens NDP (Network Device Provisioning) server:
 
 ```
-Gateway Device → NetSapiens NDP Server → Config_Gen PHP Server → ns-api
+Gateway Device → NetSapiens NDP Server → NGP PHP Server → ns-api
      |                  |                         |                    |
      |  /gateway/       |  proxy:                 |  queries           |
      |  {MAC}.cfg       |  /{MAC}.cfg             |  credentials       |
@@ -68,7 +68,7 @@ See **DEPLOYMENT.md** for complete proxy setup instructions.
 
 ### Request Flow
 1. Gateway requests `/gateway/{mac}.cfg` from NetSapiens NDP server with HTTP Basic Auth credentials
-2. NDP server proxies request to Config_Gen PHP server (with or without `/gateway/` prefix)
+2. NDP server proxies request to NGP PHP server (with or without `/gateway/` prefix)
 3. PHP server extracts MAC address from the request
 4. Query ns-api `/phones/{mac}` to get:
    - Domain, user, and device identifier

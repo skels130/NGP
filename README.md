@@ -1,4 +1,4 @@
-# Config_Gen
+# NGP
 
 Multi-vendor configuration generator for IP telephony devices. This web server dynamically generates device configuration files by querying the ns-api for SIP credentials and applying them to customizable templates.
 
@@ -26,7 +26,7 @@ Multi-vendor configuration generator for IP telephony devices. This web server d
 
 ## Security Features
 
-Config_Gen implements comprehensive security hardening:
+NGP implements comprehensive security hardening:
 
 - **XML Injection Protection**: All template variables are XML-escaped to prevent injection attacks
 - **Path Traversal Prevention**: Template paths validated with `realpath()` to ensure files are within allowed directories
@@ -43,20 +43,20 @@ See `SECURITY_AUDIT_20251205.md` for complete security audit report.
 
 ## Architecture
 
-Config_Gen is designed to work with NetSapiens NDP (Network Device Provisioning) server:
+NGP is designed to work with NetSapiens NDP (Network Device Provisioning) server:
 
 ```
-Gateway → NetSapiens NDP Server (/gateway/) → Config_Gen PHP Server
+Gateway → NetSapiens NDP Server (/gateway/) → NGP PHP Server
 ```
 
-Gateways request configs from the NDP server at `/gateway/{MAC}.cfg`, and the NDP server proxies these requests to your Config_Gen server. See **DEPLOYMENT.md** for complete proxy setup instructions.
+Gateways request configs from the NDP server at `/gateway/{MAC}.cfg`, and the NDP server proxies these requests to your NGP server. See **DEPLOYMENT.md** for complete proxy setup instructions.
 
 ## Installation
 
 1. **Clone or copy the project to your web server**
    ```bash
    cd /var/www/
-   cp -r /path/to/Config_Gen ./config-gen
+   cp -r /path/to/NGP ./config-gen
    ```
 
 2. **Set up configuration**
@@ -118,7 +118,7 @@ return [
     ],
     'logging' => [
         'enabled' => true,
-        'path' => __DIR__ . '/../logs/config_gen.log',
+        'path' => __DIR__ . '/../logs/ngp.log',
         'level' => 'info',
     ],
 ];
@@ -195,7 +195,7 @@ In a NetSapiens deployment, devices request configurations from the NDP server:
 http://ndp-server.example.com/gateway/{MAC}.cfg
 ```
 
-The NDP server proxies this to Config_Gen:
+The NDP server proxies this to NGP:
 ```
 https://config.example.com/gateway/{MAC}.cfg
 or
@@ -272,12 +272,12 @@ The template parser supports the following syntax:
 ## Project Structure
 
 ```
-Config_Gen/
+NGP/
 ├── config/
 │   ├── config.example.php    # Example configuration
 │   └── config.php             # Your configuration (create from example)
 ├── logs/
-│   ├── config_gen.log         # Application logs
+│   ├── ngp.log                # Application logs
 │   ├── php_errors.log         # PHP error logs
 │   └── ratelimit/             # Rate limiting data
 ├── public/
@@ -305,7 +305,7 @@ Config_Gen/
 
 ## Logging
 
-Logs are written to the path specified in configuration (default: `logs/config_gen.log`).
+Logs are written to the path specified in configuration (default: `logs/ngp.log`).
 
 Log levels:
 - **debug**: Detailed information for debugging
@@ -315,7 +315,7 @@ Log levels:
 
 View logs:
 ```bash
-tail -f logs/config_gen.log
+tail -f logs/ngp.log
 ```
 
 ## Troubleshooting
@@ -332,7 +332,7 @@ tail -f logs/config_gen.log
 ### 500 Internal Server Error
 - Check PHP error logs
 - Verify file permissions
-- Check logs/config_gen.log for application errors
+- Check logs/ngp.log for application errors
 
 ### Empty or Invalid Configuration
 - Verify ns-api credentials
@@ -342,7 +342,7 @@ tail -f logs/config_gen.log
 
 ## Security Considerations
 
-Config_Gen implements extensive security hardening (see Security Features section above). Additional best practices:
+NGP implements extensive security hardening (see Security Features section above). Additional best practices:
 
 - **HTTPS**: Automatically enforced with HSTS headers
 - **Strong Credentials**: Use strong passwords; consider dynamic-only authentication mode
@@ -370,7 +370,7 @@ To modify the template parser or add features:
 
 3. **Monitor logs** during testing:
    ```bash
-   tail -f logs/config_gen.log
+   tail -f logs/ngp.log
    ```
 
 ## Production Deployment
@@ -425,7 +425,7 @@ For production deployment with NetSapiens NDP proxy configuration, see **DEPLOYM
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
-**Copyright (C) 2025 Config_Gen Contributors**
+**Copyright (C) 2025 NGP Contributors**
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 

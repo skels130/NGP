@@ -1,6 +1,6 @@
 <?php
 /**
- * Config_Gen - Grandstream GXW4200 Configuration Generator
+ * NGP - NetSapiens Gateway Provisioning
  * Entry point for configuration requests
  */
 

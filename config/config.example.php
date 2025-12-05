@@ -1,6 +1,6 @@
 <?php
 /**
- * Configuration file for Config_Gen
+ * Configuration file for NGP
  * Copy this file to config.php and update with your settings
  */
 
@@ -49,7 +49,7 @@ return [
     // Logging
     'logging' => [
         'enabled' => true,
-        'path' => __DIR__ . '/../logs/config_gen.log',
+        'path' => __DIR__ . '/../logs/ngp.log',
         'level' => 'info',  // debug, info, warning, error
     ],
 

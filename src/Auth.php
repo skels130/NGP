@@ -134,7 +134,7 @@ class Auth
      */
     public function requireAuth(): void
     {
-        header('WWW-Authenticate: Basic realm="Config_Gen"');
+        header('WWW-Authenticate: Basic realm="NGP"');
         header('HTTP/1.0 401 Unauthorized');
         echo 'Authentication required';
     }

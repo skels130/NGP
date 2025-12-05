@@ -34,7 +34,7 @@ curl -u username:password http://localhost:8000/C074AD7C6934.cfg
 tail -f logs/config_gen.log
 
 # Test ns-api connectivity
-curl -H "Authorization: Bearer YOUR_API_KEY" https://api.netspectrum.com/phones/C074AD7C6934
+curl -H "Authorization: Bearer YOUR_API_KEY" https://api.example.com/phones/C074AD7C6934
 ```
 
 ### Deployment

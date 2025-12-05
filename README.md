@@ -89,7 +89,7 @@ return [
         'password' => 'your-secure-password',
     ],
     'nsapi' => [
-        'base_url' => 'https://api.netspectrum.com',
+        'base_url' => 'https://api.example.com',
         'api_key' => 'your-api-key',
         'timeout' => 10,
     ],
@@ -173,7 +173,7 @@ No code changes needed - just create the directory structure!
 
 In a NetSapiens deployment, devices request configurations from the NDP server:
 ```
-http://ndp-server.netspectrum.com/gateway/{MAC}.cfg
+http://ndp-server.example.com/gateway/{MAC}.cfg
 ```
 
 The NDP server proxies this to Config_Gen:
@@ -185,7 +185,7 @@ https://config.example.com/{MAC}.cfg (if prefix is stripped)
 
 Example gateway request:
 ```
-http://ndp-server.netspectrum.com/gateway/C074AD7C6934.cfg
+http://ndp-server.example.com/gateway/C074AD7C6934.cfg
 ```
 
 For direct testing (bypassing NDP):

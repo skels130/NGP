@@ -299,7 +299,7 @@ server {
 3. **Test SSL connection**:
    ```bash
    # Verify SSL certificate validation
-   openssl s_client -connect api.netspectrum.com:443 -showcerts
+   openssl s_client -connect api.example.com:443 -showcerts
    ```
 
 ---

@@ -188,7 +188,7 @@ Set gateway provisioning configuration:
 - **HTTP Authentication**: Use device provisioning credentials from ns-api
 
 Example for Grandstream GXW4200:
-- **P212** (Config Server Path): `http://ndp-server.netspectrum.com/gateway/`
+- **P212** (Config Server Path): `http://ndp-server.example.com/gateway/`
 - **P237** (HTTP User): `{device-provisioning-username}`
 - **P238** (HTTP Password): `{device-provisioning-password}`
 
@@ -305,7 +305,7 @@ Before going live:
 3. Verify ns-api connectivity:
    ```bash
    curl -H "Authorization: Bearer YOUR_API_KEY" \
-        https://api.netspectrum.com/phones/C074AD893044
+        https://api.example.com/phones/C074AD893044
    ```
 4. Check template exists for device brand/model
 

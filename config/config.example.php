@@ -17,7 +17,7 @@ return [
 
     // ns-api Configuration
     'nsapi' => [
-        'base_url' => 'https://api.netspectrum.com',
+        'base_url' => 'https://api.example.com',
         'api_key' => '',  // Your ns-api key
         'timeout' => 10,  // Request timeout in seconds
     ],

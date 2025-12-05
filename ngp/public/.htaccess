@@ -1,0 +1,37 @@
+# NGP .htaccess
+# URL rewriting for gateway configuration requests
+
+# Enable rewrite engine
+RewriteEngine On
+
+# Set base directory (adjust if installed in subdirectory)
+RewriteBase /
+
+# Ensure HTTPS (uncomment in production)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Route all .cfg requests to index.php
+# Handles both direct requests and proxied requests from NetSapiens NDP server
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# With /gateway/ prefix (if NDP proxy includes it)
+RewriteRule ^gateway/([A-Fa-f0-9]{12})\.cfg$ index.php [L,QSA]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# Without /gateway/ prefix (if NDP proxy strips it)
+RewriteRule ^([A-Fa-f0-9]{12})\.cfg$ index.php [L,QSA]
+
+# Deny access to sensitive files
+<FilesMatch "^(config\.php|\.env|composer\.(json|lock))$">
+    Require all denied
+</FilesMatch>
+
+# Disable directory listing
+Options -Indexes
+
+# Set proper MIME types
+<IfModule mod_mime.c>
+    AddType application/xml .cfg
+    AddType application/xml .xml
+</IfModule>

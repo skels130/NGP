@@ -1,0 +1,63 @@
+# Config_Gen .htaccess
+# URL rewriting for Grandstream configuration requests
+
+# Enable rewrite engine
+RewriteEngine On
+
+# Set base directory (adjust if installed in subdirectory)
+RewriteBase /
+
+# Pass HTTP Authorization header to PHP (required for HTTP Basic Auth)
+# Without this, PHP won't receive $_SERVER['PHP_AUTH_USER'] and $_SERVER['PHP_AUTH_PW']
+RewriteCond %{HTTP:Authorization} .
+RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Ensure HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Security Headers
+<IfModule mod_headers.c>
+    # Prevent clickjacking
+    Header always set X-Frame-Options "DENY"
+
+    # Prevent MIME type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Enable XSS protection
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # Control referrer information
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Content Security Policy - only allow same origin
+    Header always set Content-Security-Policy "default-src 'self'"
+
+    # HTTP Strict Transport Security (HSTS) - 1 year
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+</IfModule>
+
+# Route all .cfg and .xml requests to index.php
+# Handles both direct requests and proxied requests from NetSapiens NDP server
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# With /gateway/ prefix (if NDP proxy includes it)
+RewriteRule ^gateway/([A-Fa-f0-9]{12})\.(cfg|xml)$ index.php [L,QSA]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# Without /gateway/ prefix (if NDP proxy strips it)
+RewriteRule ^([A-Fa-f0-9]{12})\.(cfg|xml)$ index.php [L,QSA]
+
+# Deny access to sensitive files
+<FilesMatch "^(config\.php|\.env|composer\.(json|lock))$">
+    Require all denied
+</FilesMatch>
+
+# Disable directory listing
+Options -Indexes
+
+# Set proper MIME types
+<IfModule mod_mime.c>
+    AddType application/xml .cfg
+    AddType application/xml .xml
+</IfModule>

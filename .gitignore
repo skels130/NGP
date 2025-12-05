@@ -1,0 +1,43 @@
+# Sensitive configuration files
+config/config.php
+
+# Logs
+logs/*.log
+logs/ratelimit/*.json
+
+# PHP error log
+php_errors.log
+
+# Environment files
+.env
+.env.*
+
+# Composer
+vendor/
+composer.lock
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Cache
+cache/
+*.cache

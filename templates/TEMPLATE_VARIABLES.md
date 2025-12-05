@@ -18,7 +18,7 @@ First call retrieves device provisioning information including:
 - `line1_enable` through `line48_enable` - Line enabled status ("yes" or "no")
 - `device-models-count-buttons` - Number of lines/buttons on device
 
-### 2. GET /domains/{domain}/users/{extension}/devices/{extension}x (called for each configured line)
+### 2. GET /domains/{domain}/users/{extension}/devices (called for each configured line)
 Multiple calls retrieve SIP registration credentials for each line:
 - `device-sip-registration-password` - SIP password for this specific extension
 - Each configured line/extension gets its own individual password
@@ -119,7 +119,7 @@ Request: http://server.com/C074AD893044.cfg
 3. Authenticate using device-provisioning-username/password
 4. For each configured line (1-48):
    a. Parse SIP URI to extract extension (e.g., "sip:1004@domain" → "1004")
-   b. Call /domains/{domain}/users/{extension}/devices/{extension}x
+   b. Call /domains/{domain}/users/{extension}/devices
    c. Get: device-sip-registration-password for this specific extension
 5. Merge data:
    - Lines config from step 2

@@ -245,7 +245,7 @@ The template parser supports the following syntax:
    - Returns: SIP URIs for all lines (device1-device48)
    - Returns: Line enable status (line1_enable-line48_enable)
 
-2. **GET /domains/{domain}/users/{extension}/devices/{extension}x** (called for each configured line)
+2. **GET /domains/{domain}/users/{extension}/devices** (called for each configured line)
    - Returns: SIP registration password for that specific extension
    - Called once per configured line (up to 48 times for fully configured device)
    - Each line receives its own unique password

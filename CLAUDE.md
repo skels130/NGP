@@ -80,7 +80,7 @@ See **DEPLOYMENT.md** for complete proxy setup instructions.
    - Mode: `dynamic` - use device provisioning credentials from ns-api
    - Mode: `static` - use credentials from config file
    - Mode: `both` - try dynamic first, fall back to static
-6. **Per-Line Credential Retrieval**: For each configured line, query ns-api `/domains/{domain}/users/{extension}/devices/{extension}x` to get that line's SIP password
+6. **Per-Line Credential Retrieval**: For each configured line, query ns-api `/domains/{domain}/users/{extension}/devices` to get that line's SIP password
    - Each line gets its own unique password
    - Up to 48 API calls for fully configured device
 7. **Template Selection**: Select appropriate template based on brand and model
@@ -118,7 +118,7 @@ The template parser must support:
 - **Authentication**: API key in Authorization header
 - **Required Endpoints**:
   - `GET /phones/{mac}` - Returns domain, user, brand, model, provisioning credentials, and line configuration (device1-device48, line1_enable-line48_enable)
-  - `GET /domains/{domain}/users/{extension}/devices/{extension}x` - Returns SIP password for specific extension (called once per configured line)
+  - `GET /domains/{domain}/users/{extension}/devices` - Returns SIP password for specific extension (called once per configured line)
 
 ### Security & Authentication
 - **Dynamic Authentication**: Validates device HTTP credentials against ns-api provisioning credentials
@@ -237,7 +237,7 @@ cp existing_template.xml templates/yealink/t46s/config.xml
   - Provisioning creds: `device-provisioning-username`, `provisioning-username`, `provisioning_username`
 - **Per-Line Credential Retrieval**:
   - `NsApiClient::getDeviceInfo()` makes individual API calls for each configured line
-  - Parses SIP URI from `deviceN` field (e.g., "sip:1004@domain" → extension "1004")
-  - Queries `/domains/{domain}/users/{extension}/devices/{extension}x` for each line's password
-  - Device ID pattern: extension + 'x' (e.g., "1004x" for extension 1004)
+  - Parses SIP URI from `device-provisioning-sip-uri-N` field (e.g., "sip:1004@domain" → extension "1004")
+  - Queries `/domains/{domain}/users/{extension}/devices` for each line's password
+  - Finds matching device by extension in the returned devices array
   - Results in multiple API calls per config request (one per configured line)

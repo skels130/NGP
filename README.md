@@ -14,6 +14,8 @@ Multi-vendor configuration generator for IP telephony devices. This web server d
 - **Custom Template Parser**: Variables, conditionals, and loops
 - **Flexible Authentication Modes**: Static, dynamic, or hybrid
 - **Comprehensive Logging**: Debug, info, warning, and error levels
+- **Production-Ready Security**: Rate limiting, input validation, timing-safe auth, HTTPS enforcement
+- **One-Time Password Support**: Bootstrap new devices with temporary static credentials
 
 ## Requirements
 
@@ -21,6 +23,23 @@ Multi-vendor configuration generator for IP telephony devices. This web server d
 - Apache or Nginx web server
 - curl extension enabled
 - ns-api credentials
+
+## Security Features
+
+Config_Gen implements comprehensive security hardening:
+
+- **XML Injection Protection**: All template variables are XML-escaped to prevent injection attacks
+- **Path Traversal Prevention**: Template paths validated with `realpath()` to ensure files are within allowed directories
+- **Timing-Safe Authentication**: Uses `hash_equals()` for credential comparison to prevent timing attacks
+- **Rate Limiting**: 5 failed attempts per minute per IP, 5-minute lockout after threshold
+- **HTTPS Enforcement**: Automatic HTTP→HTTPS redirect with HSTS headers
+- **Security Headers**: CSP, X-Frame-Options, X-Content-Type-Options, XSS Protection, Referrer-Policy
+- **Input Validation**: MAC address format validation, length limits on brand/model names
+- **Secure Random Generation**: Cryptographically secure credential generation using `random_int()`
+- **Sanitized Logging**: No passwords, credentials, or sensitive data logged
+- **SSL Certificate Validation**: All ns-api requests validate SSL certificates
+
+See `SECURITY_AUDIT_20251205.md` for complete security audit report.
 
 ## Architecture
 
@@ -258,17 +277,29 @@ Config_Gen/
 │   ├── config.example.php    # Example configuration
 │   └── config.php             # Your configuration (create from example)
 ├── logs/
-│   └── config_gen.log         # Application logs
+│   ├── config_gen.log         # Application logs
+│   ├── php_errors.log         # PHP error logs
+│   └── ratelimit/             # Rate limiting data
 ├── public/
-│   ├── .htaccess              # Apache rewrite rules
+│   ├── .htaccess              # Apache rewrite rules & security headers
 │   └── index.php              # Application entry point
 ├── src/
 │   ├── Auth.php               # HTTP Basic Authentication (static + dynamic)
 │   ├── Logger.php             # Logging functionality
 │   ├── NsApiClient.php        # ns-api integration
+│   ├── RateLimiter.php        # Rate limiting for authentication
 │   ├── TemplateParser.php     # Template parsing engine
 │   └── TemplateSelector.php   # Brand/model template selection
+├── templates/                 # Device configuration templates
+│   └── grandstream/           # Grandstream device templates
+│       ├── gxw-4216/
+│       ├── gxw-4224/
+│       ├── gxw-4232/
+│       └── gxw-4248/
 ├── CLAUDE.md                  # Claude Code documentation
+├── DEPLOYMENT.md              # Production deployment guide
+├── LICENSE                    # GNU GPLv3 license
+├── SECURITY_AUDIT_20251205.md # Security audit report
 └── README.md                  # This file
 ```
 
@@ -311,12 +342,14 @@ tail -f logs/config_gen.log
 
 ## Security Considerations
 
-- Always use HTTPS in production (uncomment HTTPS redirect in .htaccess)
-- Use strong HTTP Basic Auth credentials
-- Restrict access to config.php and sensitive files
-- Regularly rotate API keys
-- Monitor logs for suspicious activity
-- Keep PHP and dependencies updated
+Config_Gen implements extensive security hardening (see Security Features section above). Additional best practices:
+
+- **HTTPS**: Automatically enforced with HSTS headers
+- **Strong Credentials**: Use strong passwords; consider dynamic-only authentication mode
+- **File Permissions**: Ensure config.php is 640, logs are 640, and rate limit directory is 750
+- **API Key Rotation**: Regularly rotate ns-api keys
+- **Monitor Logs**: Watch for rate limiting triggers and authentication failures
+- **Updates**: Keep PHP and web server updated with security patches
 
 ## Development
 
@@ -348,6 +381,52 @@ For production deployment with NetSapiens NDP proxy configuration, see **DEPLOYM
 - Production checklist and verification steps
 - Troubleshooting common deployment issues
 
+## Changelog
+
+### v1.0.0 - 2025-12-05
+
+**Initial Release** - Production-ready provisioning system with comprehensive security
+
+**Core Features:**
+- Multi-vendor device support with template-based configuration
+- Dynamic authentication using ns-api provisioning credentials
+- Per-line SIP credential retrieval (up to 48 lines per device)
+- One-time password support for device bootstrapping
+- Intelligent template selection (exact, wildcard, brand fallback)
+- Custom template parser with variables, conditionals, and loops
+
+**Security Hardening:**
+- XML injection protection (ENT_XML1 escaping)
+- Path traversal prevention (realpath validation)
+- Timing-safe credential comparison (hash_equals)
+- Rate limiting (5 attempts/min, 5-min lockout)
+- HTTPS enforcement with HSTS
+- Security headers (CSP, X-Frame-Options, etc.)
+- Input validation and length limits
+- Secure random credential generation
+- Sanitized logging (no credential exposure)
+- SSL certificate validation
+
+**Supported Devices:**
+- Grandstream GXW-4216 (16-port FXS gateway)
+- Grandstream GXW-4224 (24-port FXS gateway)
+- Grandstream GXW-4232 (32-port FXS gateway)
+- Grandstream GXW-4248 (48-port FXS gateway)
+
+**Components:**
+- Auth.php - Dynamic + static HTTP Basic Authentication
+- RateLimiter.php - IP-based rate limiting with lockout
+- NsApiClient.php - ns-api integration with per-line credential retrieval
+- TemplateParser.php - XML-safe template parsing
+- TemplateSelector.php - Path-traversal-safe template selection
+- Logger.php - Sanitized logging system
+
 ## License
 
-Internal use only.
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+**Copyright (C) 2025 Config_Gen Contributors**
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.

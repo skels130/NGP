@@ -39,14 +39,14 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # Route all .cfg and .xml requests to index.php
 # Handles both direct requests and proxied requests from NetSapiens NDP server
+# Supports multiple URL formats:
+# - /{mac}.cfg or /{mac}.xml
+# - /cfg/{mac}.cfg or /cfg{mac}.cfg
+# - /gateway/{mac}.cfg, /gateway/cfg/{mac}.cfg, /gateway/cfg{mac}.cfg
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-# With /gateway/ prefix (if NDP proxy includes it)
-RewriteRule ^gateway/([A-Fa-f0-9]{12})\.(cfg|xml)$ index.php [L,QSA]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-# Without /gateway/ prefix (if NDP proxy strips it)
-RewriteRule ^([A-Fa-f0-9]{12})\.(cfg|xml)$ index.php [L,QSA]
+RewriteRule ^(gateway/)?(cfg/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$ index.php [L,QSA]
 
 # Deny access to sensitive files
 <FilesMatch "^(config\.php|\.env|composer\.(json|lock))$">

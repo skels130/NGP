@@ -82,9 +82,11 @@ class NsApiClient
      *
      * @param string $domain Domain name
      * @param array $phoneInfo Phone info from getPhoneInfo() with line configuration
+     * @param string|null $provisioningUsername Provisioning username (existing or newly generated)
+     * @param string|null $provisioningPassword Provisioning password (existing or newly generated)
      * @return array|null Device info with SIP credentials or null if not found
      */
-    public function getDeviceInfo(string $domain, array $phoneInfo = []): ?array
+    public function getDeviceInfo(string $domain, array $phoneInfo = [], ?string $provisioningUsername = null, ?string $provisioningPassword = null): ?array
     {
         if (empty($phoneInfo['raw'])) {
             $this->logger->error("getDeviceInfo requires phoneInfo from getPhoneInfo()");
@@ -93,8 +95,30 @@ class NsApiClient
 
         $provisioningData = $phoneInfo['raw'];
 
-        // Extract SIP server/hostname
-        $sipServer = $provisioningData['device-provisioning-ndp-hostname'] ?? null;
+        // SIP server is the domain name
+        $sipServer = $domain;
+
+        // Get outbound proxy and ports by querying the registration server
+        $outboundProxy = null;
+        $tcpPort = null;
+        $tlsPort = null;
+        $registrationServer = $provisioningData['device-provisioning-registration-core-server'] ?? null;
+        if ($registrationServer) {
+            $this->logger->debug("Fetching server info from registration server: $registrationServer");
+            $serverInfo = $this->getServerInfo($registrationServer);
+            if ($serverInfo) {
+                // Use the FQDN as the outbound proxy
+                $outboundProxy = $serverInfo['device-provisioning-core-server-postfix-fqdn'] ?? null;
+                $tcpPort = $serverInfo['device-provisioning-core-server-tcp-port'] ?? null;
+                $tlsPort = $serverInfo['device-provisioning-core-server-tls-port'] ?? null;
+
+                $this->logger->debug("Retrieved server info - Proxy: " . ($outboundProxy ?? 'null') .
+                                    ", TCP: " . ($tcpPort ?? 'null') .
+                                    ", TLS: " . ($tlsPort ?? 'null'));
+            } else {
+                $this->logger->warning("Failed to retrieve server info for: $registrationServer");
+            }
+        }
 
         // Parse lines (device-provisioning-sip-uri-X with corresponding device-provisioning-line-X-enabled)
         $lines = [];
@@ -157,14 +181,36 @@ class NsApiClient
 
         return [
             'sip_server' => $sipServer,
-            'outbound_proxy' => null,
+            'outbound_proxy' => $outboundProxy,
             'transport' => $transport,
-            'ndp_hostname' => $sipServer,  // Alias for template compatibility
+            'tcp_port' => $tcpPort,
+            'tls_port' => $tlsPort,
+            'provisioning_username' => $provisioningUsername,
+            'provisioning_password' => $provisioningPassword,
+            'ndp_hostname' => $provisioningData['device-provisioning-ndp-hostname'] ?? null,  // Keep for backward compatibility
             'sip_transport_protocol' => $transport,  // Alias for template compatibility
             'lines' => $lines,
             'button_count' => $buttonCount,
             'raw' => $provisioningData,
         ];
+    }
+
+    /**
+     * Get server information from ns-api
+     *
+     * @param string $serverName Server name (e.g., "endpoints-01-chi")
+     * @return array|null Server info or null if not found
+     */
+    public function getServerInfo(string $serverName): ?array
+    {
+        $endpoint = "/phones/servers/" . urlencode($serverName);
+        $response = $this->makeRequest('GET', $endpoint);
+
+        if (!$response) {
+            return null;
+        }
+
+        return $response;
     }
 
     /**
@@ -274,6 +320,57 @@ class NsApiClient
         } else {
             $this->logger->error("Failed to update global-one-time-pass for $mac");
             return false;
+        }
+    }
+
+    /**
+     * Ensure provisioning credentials exist for a device
+     * Generates and sets credentials if they don't exist
+     *
+     * @param string $mac MAC address (12 hex characters)
+     * @param string|null $existingUsername Existing username from phone info
+     * @param string|null $existingPassword Existing password from phone info
+     * @return array Array with 'username' and 'password' keys (existing or newly generated)
+     */
+    public function ensureProvisioningCredentials(string $mac, ?string $existingUsername, ?string $existingPassword): array
+    {
+        // If credentials already exist, return them
+        if ($existingUsername && $existingPassword) {
+            $this->logger->debug("Provisioning credentials already exist for $mac");
+            return [
+                'username' => $existingUsername,
+                'password' => $existingPassword,
+            ];
+        }
+
+        // Generate new credentials
+        $username = $this->generateRandomString(12);
+        $password = $this->generateRandomString(30);
+
+        $this->logger->info("Generating new provisioning credentials for $mac");
+
+        // Update ns-api with new credentials
+        $endpoint = "/phones/" . strtoupper($mac);
+        $data = [
+            'device-provisioning-username' => $username,
+            'device-provisioning-password' => $password,
+        ];
+
+        $response = $this->makeRequest('PUT', $endpoint, $data);
+
+        if ($response) {
+            $this->logger->info("Successfully set new provisioning credentials for $mac");
+            return [
+                'username' => $username,
+                'password' => $password,
+            ];
+        } else {
+            $this->logger->error("Failed to set provisioning credentials for $mac");
+            // Return generated credentials anyway so config generation can proceed
+            return [
+                'username' => $username,
+                'password' => $password,
+            ];
         }
     }
 

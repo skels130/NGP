@@ -27,9 +27,18 @@ Custom parameters from `device-models-overrides-blob` field in ns-api.
 ### SIP Server Configuration
 | Variable | Example | Description |
 |----------|---------|-------------|
-| `{{device_info.sip_server}}` | `endpoints.example.com` | SIP server hostname |
+| `{{device_info.sip_server}}` | `LoshSandBox` | SIP server (domain name) |
+| `{{device_info.outbound_proxy}}` | `sgf-sb1.losh.com` | Outbound proxy FQDN |
 | `{{device_info.transport}}` | `udp` | Transport protocol (udp/tcp/tls) |
+| `{{device_info.tcp_port}}` | `5060` | TCP port for SIP |
+| `{{device_info.tls_port}}` | `5061` | TLS port for SIP |
 | `{{device_info.button_count}}` | `48` | Number of lines/buttons |
+
+### Provisioning Credentials
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `{{device_info.provisioning_username}}` | `xK2mP9nQ4vR8` | Provisioning username (HTTP Basic Auth) |
+| `{{device_info.provisioning_password}}` | `aB3cD4eF5gH6iJ7kL8mN9oP0qR1sT2u` | Provisioning password (HTTP Basic Auth) |
 
 ### Line Configuration (Per-Line)
 Access lines as array: `device_info.lines.N` where N is 0-47 (for 48 ports).
@@ -68,9 +77,17 @@ Access lines as array: `device_info.lines.N` where N is 0-47 (for 48 ports).
 
 ## Grandstream GXW Quick Reference
 
-### SIP Server (Profile 1)
+### SIP Server Configuration (Profile 1)
 ```xml
+<!-- SIP Server (domain) -->
 <P47>{{device_info.sip_server}}</P47>
+
+<!-- Outbound Proxy -->
+<P48>{{device_info.outbound_proxy}}</P48>
+
+<!-- SIP Transport -->
+<P52>{{device_info.tcp_port}}</P52>
+<P53>{{device_info.tls_port}}</P53>
 ```
 
 ### FXS Port 1 (lines.0)
@@ -116,17 +133,24 @@ device-models-overrides-blob: P2917="https://losh.com/logos/reece_logo_480x272.j
 Returns:
 - Device info: `domain`, `user`, `device`, `brand`, `model`
 - Provisioning: `device-provisioning-username`, `device-provisioning-password`
-- SIP server: `device-provisioning-ndp-hostname`
+- Registration server: `device-provisioning-registration-core-server`
 - Line config: `device-provisioning-sip-uri-1` through `device-provisioning-sip-uri-48`
 - Line status: `device-provisioning-line-1-enabled` through `device-provisioning-line-48-enabled`
 - **Parameter overrides**: `device-models-overrides-blob`
 
-### Step 2: GET /domains/{domain}/users/{extension}/devices
+### Step 2: GET /phones/servers/{server}
+Fetches server configuration using registration server from Step 1:
+- `device-provisioning-core-server-postfix-fqdn` - Outbound proxy FQDN
+- `device-provisioning-core-server-tcp-port` - TCP port (usually 5060)
+- `device-provisioning-core-server-tls-port` - TLS port (usually 5061)
+
+### Step 3: GET /domains/{domain}/users/{extension}/devices
 Called once per configured line to retrieve:
 - `device-sip-registration-password` - Unique password for each line
 
-### Step 3: Merge and Render
+### Step 4: Merge and Render
 - Standard variables populated from API responses
+- Server configuration from `/phones/servers/` endpoint
 - Dynamic variables extracted from `device-models-overrides-blob`
 - Template rendered with all variables
 

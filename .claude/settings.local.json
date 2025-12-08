@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(chmod:*)",
-      "Bash(chown:*)"
+      "Bash(chown:*)",
+      "Bash(curl -u UzjYpUWncoT7:TqKm4sNHnPSTmFvdo8oBunUELRQh3E https://ngp-01-chi.calldecibel.com/C074ADA1DDD4.cfg -v)",
+      "Bash(php:*)"
     ],
     "deny": [],
     "ask": []

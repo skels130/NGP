@@ -74,27 +74,32 @@ See **DEPLOYMENT.md** for complete proxy setup instructions.
    - Domain, user, and device identifier
    - Device brand and model
    - Device provisioning credentials (username/password)
+   - Registration server name (device-provisioning-registration-core-server)
    - SIP URIs for all lines (device1-device48)
    - Line enable status (line1_enable-line48_enable)
    - **device-models-overrides-blob** (dynamic parameter overrides)
-5. **Dynamic Authentication**: Validate HTTP Basic Auth credentials against provisioning credentials from API
+5. **Server Info Retrieval**: Query ns-api `/phones/servers/{server}` to get:
+   - Outbound proxy FQDN (device-provisioning-core-server-postfix-fqdn)
+   - TCP port (device-provisioning-core-server-tcp-port)
+   - TLS port (device-provisioning-core-server-tls-port)
+6. **Dynamic Authentication**: Validate HTTP Basic Auth credentials against provisioning credentials from API
    - Mode: `dynamic` - use device provisioning credentials from ns-api
    - Mode: `static` - use credentials from config file
    - Mode: `both` - try dynamic first, fall back to static
-6. **Per-Line Credential Retrieval**: For each configured line, query ns-api `/domains/{domain}/users/{extension}/devices` to get that line's SIP password
+7. **Per-Line Credential Retrieval**: For each configured line, query ns-api `/domains/{domain}/users/{extension}/devices` to get that line's SIP password
    - Each line gets its own unique password
    - Up to 48 API calls for fully configured device
-7. **Parse Dynamic Variables**: Extract parameter=value pairs from device-models-overrides-blob
+8. **Parse Dynamic Variables**: Extract parameter=value pairs from device-models-overrides-blob
    - Supports double-quoted, single-quoted, and unquoted values
    - Parameters become top-level template variables (e.g., `{{P2917}}`)
-8. **Template Selection**: Select appropriate template based on brand and model
+9. **Template Selection**: Select appropriate template based on brand and model
    - Check exact match: `brand:model`
    - Check pattern match: `brand:model*` (wildcard support)
    - Check brand-only match: `brand`
    - Fall back to default template
-9. Parse template and evaluate custom logic expressions
-10. Replace variables with values from ns-api response and dynamic overrides
-11. Return generated XML configuration to NDP server (which forwards to gateway)
+10. Parse template and evaluate custom logic expressions
+11. Replace variables with values from ns-api response and dynamic overrides
+12. Return generated XML configuration to NDP server (which forwards to gateway)
 
 ### Configuration Template Structure
 - **Format**: XML with Grandstream P-code parameters (e.g., `<P47>`, `<P4060>`)
@@ -132,7 +137,8 @@ NGP supports device-specific parameter overrides via the `device-models-override
 - **Production**: Uses direct HTTP/curl requests via NsApiClient class
 - **Authentication**: API key in Authorization header
 - **Required Endpoints**:
-  - `GET /phones/{mac}` - Returns domain, user, brand, model, provisioning credentials, and line configuration (device1-device48, line1_enable-line48_enable)
+  - `GET /phones/{mac}` - Returns domain, user, brand, model, provisioning credentials, registration server, and line configuration (device1-device48, line1_enable-line48_enable)
+  - `GET /phones/servers/{server}` - Returns server configuration (FQDN, TCP/TLS ports) for outbound proxy setup
   - `GET /domains/{domain}/users/{extension}/devices` - Returns SIP password for specific extension (called once per configured line)
 
 ### Security & Authentication
@@ -159,7 +165,7 @@ NGP supports device-specific parameter overrides via the `device-models-override
 - `public/index.php` - Main entry point, handles requests and orchestrates components
 - `src/Auth.php` - HTTP Basic Authentication handler (supports global one-time password and dynamic device-specific credentials)
 - `src/Logger.php` - Logging functionality (supports debug, info, warning, error levels)
-- `src/NsApiClient.php` - ns-api REST client using curl (extracts brand, model, provisioning creds)
+- `src/NsApiClient.php` - ns-api REST client using curl (extracts brand, model, provisioning creds, server info including outbound proxy and ports)
 - `src/TemplateSelector.php` - Template selection engine based on brand/model with wildcard support
 - `src/TemplateParser.php` - Custom template parser supporting variables, conditionals, and loops
 - `config/config.php` - Application configuration (create from config.example.php)

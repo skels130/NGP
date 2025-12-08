@@ -227,8 +227,13 @@ The template parser supports variables, conditionals, and loops:
 **Standard Variables** (always available):
 - `{{mac}}` - Device MAC address
 - `{{domain}}`, `{{user}}`, `{{device}}` - Device identifiers
-- `{{device_info.sip_server}}` - SIP server hostname
+- `{{device_info.sip_server}}` - SIP server (domain name)
+- `{{device_info.outbound_proxy}}` - Outbound proxy FQDN
 - `{{device_info.transport}}` - SIP transport (udp/tcp/tls)
+- `{{device_info.tcp_port}}` - TCP port for SIP (e.g., 5060)
+- `{{device_info.tls_port}}` - TLS port for SIP (e.g., 5061)
+- `{{device_info.provisioning_username}}` - Provisioning username (HTTP Basic Auth)
+- `{{device_info.provisioning_password}}` - Provisioning password (HTTP Basic Auth)
 - `{{device_info.lines.N.username}}` - Username for line N (0-47)
 - `{{device_info.lines.N.password}}` - SIP password for line N
 - `{{device_info.lines.N.auth_id}}` - Auth ID for line N
@@ -262,16 +267,23 @@ Use dynamic variables for:
 1. **GET /phones/{mac}**
    - Returns: domain, user, device identifier, brand, model
    - Returns: device-provisioning-username, device-provisioning-password
+   - Returns: device-provisioning-registration-core-server (server name)
    - Returns: SIP URIs for all lines (device1-device48)
    - Returns: Line enable status (line1_enable-line48_enable)
    - Returns: **device-models-overrides-blob** (dynamic parameter overrides)
 
-2. **GET /domains/{domain}/users/{extension}/devices** (called for each configured line)
+2. **GET /phones/servers/{server}**
+   - Fetches server configuration using registration server from step 1
+   - Returns: device-provisioning-core-server-postfix-fqdn (outbound proxy)
+   - Returns: device-provisioning-core-server-tcp-port (TCP port)
+   - Returns: device-provisioning-core-server-tls-port (TLS port)
+
+3. **GET /domains/{domain}/users/{extension}/devices** (called for each configured line)
    - Returns: SIP registration password for that specific extension
    - Called once per configured line (up to 48 times for fully configured device)
    - Each line receives its own unique password
 
-3. **Dynamic Variables Parsing**
+4. **Dynamic Variables Parsing**
    - Extracts parameter=value pairs from device-models-overrides-blob
    - Makes parameters available as top-level template variables
    - Enables device-specific customization without code changes

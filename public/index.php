@@ -25,8 +25,11 @@ spl_autoload_register(function ($class) {
 $requestUri = $_SERVER['REQUEST_URI'];
 $path = parse_url($requestUri, PHP_URL_PATH);
 
-// Match pattern: /{mac}.cfg, /{mac}.xml, /cfg/{mac}.cfg, or /cfg/{mac}.xml
-if (preg_match('/\/([A-Fa-f0-9]{12})\.(cfg|xml)$/', $path, $matches)) {
+// Match pattern with optional gateway and cfg prefixes:
+// /{mac}.cfg, /cfg/{mac}.cfg, /cfg{mac}.cfg
+// /gateway/{mac}.cfg, /gateway/cfg/{mac}.cfg, /gateway/cfg{mac}.cfg
+// Both .cfg and .xml extensions are supported
+if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/', $path, $matches)) {
     $macAddress = strtoupper($matches[1]);
     $fileExtension = $matches[2];
 
@@ -85,6 +88,16 @@ if (preg_match('/\/([A-Fa-f0-9]{12})\.(cfg|xml)$/', $path, $matches)) {
             exit;
         }
 
+        // Ensure provisioning credentials exist (generate new ones if needed)
+        // This makes credentials available for both authentication and template variables
+        $provisioningCreds = $nsapi->ensureProvisioningCredentials(
+            $macAddress,
+            $provisioningUsername,
+            $provisioningPassword
+        );
+        $provisioningUsername = $provisioningCreds['username'];
+        $provisioningPassword = $provisioningCreds['password'];
+
         $logger->debug("Found device: domain=$domain, user=$user, device=$device, brand=$brand, model=$model, global-one-time-pass=$globalOneTimePass");
 
         // HTTP Authentication
@@ -136,7 +149,7 @@ if (preg_match('/\/([A-Fa-f0-9]{12})\.(cfg|xml)$/', $path, $matches)) {
         // Get device configuration (SIP info) for all lines
         // This will query ns-api for each configured extension to get registration data
         $logger->info("Fetching SIP configuration for all lines in domain: $domain");
-        $deviceInfo = $nsapi->getDeviceInfo($domain, $phoneInfo);
+        $deviceInfo = $nsapi->getDeviceInfo($domain, $phoneInfo, $provisioningUsername, $provisioningPassword);
 
         if (!$deviceInfo) {
             $logger->error("Failed to retrieve device configuration for domain: $domain");

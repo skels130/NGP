@@ -7,6 +7,7 @@ Multi-vendor configuration generator for IP telephony devices. This web server d
 - **Multi-Vendor Support**: Automatically selects appropriate template based on device brand and model
 - **Dynamic Authentication**: Validates devices using provisioning credentials from ns-api
 - **Dynamic Configuration**: Generates configs based on MAC address and ns-api data
+- **Dynamic Variables**: Device-specific parameter overrides from ns-api `device-models-overrides-blob`
 - **Intelligent Template Selection**:
   - Exact brand/model matching
   - Wildcard pattern matching (e.g., `gxw42*` matches all GXW4200 models)
@@ -231,20 +232,19 @@ Configure your devices to:
 
 ### Template Syntax
 
-The template parser supports the following syntax:
+The template parser supports variables, conditionals, and loops:
 
 #### Variable Substitution
 ```xml
 <P47>{{device_info.sip_server}}</P47>
-<P4060>{{device_info.username}}</P4060>
+<P4060>{{device_info.lines.0.username}}</P4060>
+<P2917>{{P2917}}</P2917>  <!-- Dynamic variable from overrides -->
 ```
 
 #### Conditionals
 ```xml
-{{if device_info.outbound_proxy}}
-<P48>{{device_info.outbound_proxy}}</P48>
-{{else}}
-<P48></P48>
+{{if device_info.lines.0.enabled}}
+<P4060>{{device_info.lines.0.username}}</P4060>
 {{endif}}
 ```
 
@@ -252,9 +252,43 @@ The template parser supports the following syntax:
 ```xml
 {{for port in 1..48}}
 <!-- FXS Port {{port}} -->
-<P4060>{{device_info.username}}</P4060>
 {{endfor}}
 ```
+
+### Template Variables
+
+**Standard Variables** (always available):
+- `{{mac}}` - Device MAC address
+- `{{domain}}`, `{{user}}`, `{{device}}` - Device identifiers
+- `{{device_info.sip_server}}` - SIP server hostname
+- `{{device_info.transport}}` - SIP transport (udp/tcp/tls)
+- `{{device_info.lines.N.username}}` - Username for line N (0-47)
+- `{{device_info.lines.N.password}}` - SIP password for line N
+- `{{device_info.lines.N.auth_id}}` - Auth ID for line N
+- `{{device_info.lines.N.extension}}` - Extension for line N
+- `{{device_info.lines.N.enabled}}` - Line enabled status
+
+**Dynamic Variables** (device-specific overrides):
+Any parameter from `device-models-overrides-blob` in ns-api automatically becomes available.
+
+Example ns-api response:
+```
+device-models-overrides-blob: P2917="https://example.com/logo.jpg" P2916="1"
+```
+
+Template usage:
+```xml
+<P2916>{{P2916}}</P2916>  <!-- Renders as: 1 -->
+<P2917>{{P2917}}</P2917>  <!-- Renders as: https://example.com/logo.jpg -->
+```
+
+Use dynamic variables for:
+- Custom logos and backgrounds
+- Display settings and time zones
+- Any vendor-specific parameters
+- Device-specific customization
+
+**See `templates/TEMPLATE_VARIABLES.md` for complete reference.**
 
 ## API Flow
 
@@ -263,11 +297,17 @@ The template parser supports the following syntax:
    - Returns: device-provisioning-username, device-provisioning-password
    - Returns: SIP URIs for all lines (device1-device48)
    - Returns: Line enable status (line1_enable-line48_enable)
+   - Returns: **device-models-overrides-blob** (dynamic parameter overrides)
 
 2. **GET /domains/{domain}/users/{extension}/devices** (called for each configured line)
    - Returns: SIP registration password for that specific extension
    - Called once per configured line (up to 48 times for fully configured device)
    - Each line receives its own unique password
+
+3. **Dynamic Variables Parsing**
+   - Extracts parameter=value pairs from device-models-overrides-blob
+   - Makes parameters available as top-level template variables
+   - Enables device-specific customization without code changes
 
 ## Project Structure
 
@@ -382,6 +422,20 @@ For production deployment with NetSapiens NDP proxy configuration, see **DEPLOYM
 - Troubleshooting common deployment issues
 
 ## Changelog
+
+### v1.1.0 - 2025-12-08
+
+**New Features:**
+- **Dynamic Variables**: Device-specific parameter overrides via `device-models-overrides-blob`
+  - Any parameter from ns-api blob automatically available as template variable
+  - Supports double-quoted, single-quoted, and unquoted values
+  - Perfect for custom logos, display settings, and vendor-specific parameters
+  - No code changes needed - just add parameters to ns-api field
+
+**Documentation:**
+- Updated all documentation with dynamic variables feature
+- Added concise variable reference in `templates/TEMPLATE_VARIABLES.md`
+- Improved template examples with dynamic variable usage
 
 ### v1.0.0 - 2025-12-05
 

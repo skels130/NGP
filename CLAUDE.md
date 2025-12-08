@@ -76,6 +76,7 @@ See **DEPLOYMENT.md** for complete proxy setup instructions.
    - Device provisioning credentials (username/password)
    - SIP URIs for all lines (device1-device48)
    - Line enable status (line1_enable-line48_enable)
+   - **device-models-overrides-blob** (dynamic parameter overrides)
 5. **Dynamic Authentication**: Validate HTTP Basic Auth credentials against provisioning credentials from API
    - Mode: `dynamic` - use device provisioning credentials from ns-api
    - Mode: `static` - use credentials from config file
@@ -83,14 +84,17 @@ See **DEPLOYMENT.md** for complete proxy setup instructions.
 6. **Per-Line Credential Retrieval**: For each configured line, query ns-api `/domains/{domain}/users/{extension}/devices` to get that line's SIP password
    - Each line gets its own unique password
    - Up to 48 API calls for fully configured device
-7. **Template Selection**: Select appropriate template based on brand and model
+7. **Parse Dynamic Variables**: Extract parameter=value pairs from device-models-overrides-blob
+   - Supports double-quoted, single-quoted, and unquoted values
+   - Parameters become top-level template variables (e.g., `{{P2917}}`)
+8. **Template Selection**: Select appropriate template based on brand and model
    - Check exact match: `brand:model`
    - Check pattern match: `brand:model*` (wildcard support)
    - Check brand-only match: `brand`
    - Fall back to default template
-8. Parse template and evaluate custom logic expressions
-9. Replace variables with values from ns-api response
-10. Return generated XML configuration to NDP server (which forwards to gateway)
+9. Parse template and evaluate custom logic expressions
+10. Replace variables with values from ns-api response and dynamic overrides
+11. Return generated XML configuration to NDP server (which forwards to gateway)
 
 ### Configuration Template Structure
 - **Format**: XML with Grandstream P-code parameters (e.g., `<P47>`, `<P4060>`)
@@ -106,11 +110,22 @@ See **DEPLOYMENT.md** for complete proxy setup instructions.
   - `<P4150-P4185>`: FXS Port 1-48 Profile IDs (0-3 for Profiles 1-4)
 
 ### Custom Logic Parser
-The template parser must support:
+The template parser supports:
 - Variable substitution (e.g., `{{sip_server}}`, `{{username}}`, `{{password}}`)
 - Conditional logic (e.g., `{{if condition}}...{{endif}}`)
 - Loop constructs for multiple FXS ports
 - Basic expressions for parameter calculation
+
+### Dynamic Variables (Parameter Overrides)
+NGP supports device-specific parameter overrides via the `device-models-overrides-blob` field:
+- **Source**: ns-api `/phones/{mac}` response field
+- **Format**: Space-separated `PARAMETER="value"` pairs
+- **Example**: `P2917="https://losh.com/logos/reece_logo_480x272.jpg" P2916="1"`
+- **Parsing**: `NsApiClient::parseOverridesBlob()` extracts parameters
+- **Template Access**: Parameters available as `{{P2917}}`, `{{P2916}}`, etc.
+- **Use Cases**: Custom logos, backgrounds, display settings, time zones, vendor-specific parameters
+- **Quote Support**: Double quotes, single quotes, or unquoted values
+- **Priority**: Dynamic variables override standard variables if names conflict
 
 ### ns-api Integration
 - **MCP Tools Available**: Use `mcp__ns-api__*` functions for API calls (in Claude Code context)
@@ -215,6 +230,13 @@ cp existing_template.xml templates/yealink/t46s/config.xml
 - **Dynamic Credentials**: Devices authenticate using provisioning credentials from ns-api
   - Field names: `device-provisioning-username`, `device-provisioning-password`
   - Alternative names: `provisioning-username`, `provisioning_username`, etc.
+- **Dynamic Variables** (v1.1.0+):
+  - `device-models-overrides-blob` field parsed automatically
+  - Parameters become top-level template variables
+  - Use `{{P2917}}` directly in templates
+  - Perfect for device-specific customization (logos, settings, etc.)
+  - Parsed by `NsApiClient::parseOverridesBlob()` method
+  - Merged into template variables in `public/index.php`
 - **Template Organization**:
   - Each model has its own directory under `templates/{brand}/{model}/`
   - Optional brand-level fallback: `templates/{brand}/default/config.xml`
@@ -230,11 +252,12 @@ cp existing_template.xml templates/yealink/t46s/config.xml
   1. Create directory: `mkdir -p templates/{brand}/{model}`
   2. Add template: `cp existing.xml templates/{brand}/{model}/config.xml`
   3. Edit template to match device configuration format
-  4. Use parser syntax for dynamic values: `{{device_info.username}}`
+  4. Use parser syntax for dynamic values: `{{device_info.username}}`, `{{P2917}}`, etc.
 - **API Response Fields**: NsApiClient tries multiple field name variations
   - Brand: `brand`, `make`, `vendor`
   - Model: `model`
   - Provisioning creds: `device-provisioning-username`, `provisioning-username`, `provisioning_username`
+  - Dynamic overrides: `device-models-overrides-blob`
 - **Per-Line Credential Retrieval**:
   - `NsApiClient::getDeviceInfo()` makes individual API calls for each configured line
   - Parses SIP URI from `device-provisioning-sip-uri-N` field (e.g., "sip:1004@domain" → extension "1004")

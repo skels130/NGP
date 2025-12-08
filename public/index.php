@@ -178,6 +178,13 @@ if (preg_match('/\/([A-Fa-f0-9]{12})\.(cfg|xml)$/', $path, $matches)) {
             'device_info' => $deviceInfo,
         ];
 
+        // Merge parameter overrides from device-models-overrides-blob as top-level variables
+        // This allows templates to use {{P2917}} directly instead of {{phone_info.overrides.P2917}}
+        if (!empty($phoneInfo['overrides'])) {
+            $logger->debug("Merging " . count($phoneInfo['overrides']) . " parameter overrides into template variables");
+            $variables = array_merge($variables, $phoneInfo['overrides']);
+        }
+
         // Generate configuration
         $logger->debug("Generating configuration");
         $configXml = $templateParser->parse($variables);

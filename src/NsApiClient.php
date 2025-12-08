@@ -54,6 +54,10 @@ class NsApiClient
         $brand = $response['brand'] ?? $response['make'] ?? $response['vendor'] ?? $brand;
         $model = $response['model'] ?? $model;
 
+        // Parse device-models-overrides-blob for dynamic parameter overrides
+        $overridesBlob = $response['device-models-overrides-blob'] ?? null;
+        $overrides = $this->parseOverridesBlob($overridesBlob);
+
         return [
             'domain' => $response['domain'] ?? null,
             'user' => $response['user'] ?? $response['extension'] ?? null,
@@ -67,6 +71,7 @@ class NsApiClient
                                       $response['provisioning-password'] ??
                                       $response['provisioning_password'] ?? null,
             'global_one_time_pass' => $response['global-one-time-pass'] ?? 'no',
+            'overrides' => $overrides,
             'raw' => $response,
         ];
     }
@@ -291,5 +296,46 @@ class NsApiClient
         }
 
         return $randomString;
+    }
+
+    /**
+     * Parse device-models-overrides-blob field
+     * Extracts parameter=value pairs from the blob string
+     * Example input: P2917="https://example.com/logo.jpg" P2916="1"
+     *
+     * @param string|null $blob The overrides blob from ns-api
+     * @return array Associative array of parameter => value pairs
+     */
+    public function parseOverridesBlob(?string $blob): array
+    {
+        if (empty($blob)) {
+            return [];
+        }
+
+        $overrides = [];
+
+        // Match pattern: PARAMETER="VALUE" or PARAMETER='VALUE' or PARAMETER=VALUE
+        // Use double quotes for PHP string to properly escape single quote in regex
+        preg_match_all("/(\w+)=(?:\"([^\"]*)\"|'([^']*)'|(\S+))/", $blob, $matches, PREG_SET_ORDER);
+
+        foreach ($matches as $match) {
+            $parameter = $match[1];
+            // Value can be in different capture groups depending on quote type
+            // Check which group actually captured the value
+            if (array_key_exists(2, $match) && $match[2] !== '') {
+                $value = $match[2];  // Double-quoted value
+            } elseif (array_key_exists(3, $match) && $match[3] !== '') {
+                $value = $match[3];  // Single-quoted value
+            } elseif (array_key_exists(4, $match) && $match[4] !== '') {
+                $value = $match[4];  // Unquoted value
+            } else {
+                $value = '';  // Empty value (e.g., P123="")
+            }
+            $overrides[$parameter] = $value;
+        }
+
+        $this->logger->debug("Parsed " . count($overrides) . " parameter overrides from blob");
+
+        return $overrides;
     }
 }

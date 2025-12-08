@@ -103,7 +103,7 @@ See **DEPLOYMENT.md** for complete proxy setup instructions.
 
 ### Configuration Template Structure
 - **Format**: XML with Grandstream P-code parameters (e.g., `<P47>`, `<P4060>`)
-- **Location**: `/home/skelsey@losh.local/Documents/config-template/gxw42xx_v2_config_1.0.15.2.xml`
+- **Location**: `/path/to/templates/gxw42xx_v2_config_1.0.15.2.xml`
 - **Size**: ~6651 lines
 - **Key Parameters**:
   - `<P47>`: SIP Server
@@ -125,7 +125,7 @@ The template parser supports:
 NGP supports device-specific parameter overrides via the `device-models-overrides-blob` field:
 - **Source**: ns-api `/phones/{mac}` response field
 - **Format**: Space-separated `PARAMETER="value"` pairs
-- **Example**: `P2917="https://losh.com/logos/reece_logo_480x272.jpg" P2916="1"`
+- **Example**: `P2917="https://example.com/logos/logo_480x272.jpg" P2916="1"`
 - **Parsing**: `NsApiClient::parseOverridesBlob()` extracts parameters
 - **Template Access**: Parameters available as `{{P2917}}`, `{{P2916}}`, etc.
 - **Use Cases**: Custom logos, backgrounds, display settings, time zones, vendor-specific parameters

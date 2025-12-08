@@ -198,7 +198,7 @@ class NsApiClient
     /**
      * Get server information from ns-api
      *
-     * @param string $serverName Server name (e.g., "endpoints-01-chi")
+     * @param string $serverName Server name (e.g., "server-01")
      * @return array|null Server info or null if not found
      */
     public function getServerInfo(string $serverName): ?array

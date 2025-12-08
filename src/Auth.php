@@ -1,7 +1,14 @@
 <?php
 /**
  * HTTP Basic Authentication handler
- * Supports both static config-based auth and dynamic credential validation
+ *
+ * Supports two authentication modes:
+ * 1. Global one-time password (from config) - Used for initial device provisioning
+ * 2. Dynamic device-specific credentials (from ns-api) - Used for ongoing provisioning
+ *
+ * The global one-time password allows new devices to authenticate for their first
+ * configuration request. After successful authentication with the one-time password,
+ * it is automatically disabled and device-specific credentials are generated.
  */
 class Auth
 {
@@ -51,7 +58,11 @@ class Auth
     }
 
     /**
-     * Check if the request is authenticated against static config credentials
+     * Check if the request is authenticated against global one-time password
+     *
+     * This checks the credentials from config.php which serves as the global
+     * one-time password for initial device provisioning. Only works when the
+     * device has global-one-time-pass=yes in ns-api.
      *
      * @return bool
      */

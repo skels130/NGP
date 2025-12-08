@@ -101,17 +101,20 @@ return [
 ### Authentication Modes
 
 **Dynamic Mode** (Recommended):
-- Devices authenticate using provisioning credentials from ns-api
-- Credentials are retrieved from `/phones/{mac}` API response
+- Devices authenticate using device-specific provisioning credentials from ns-api
+- Credentials are unique per device and retrieved from `/phones/{mac}` API response
+- Most secure option
 
 **Static Mode**:
-- All devices use the same username/password from config file
-- Traditional authentication method
+- Devices use the global one-time password from config.php
+- Used for initial device provisioning when `global-one-time-pass=yes` in ns-api
+- After first successful authentication, the one-time password is automatically disabled
+- Device-specific credentials are generated and must be used for subsequent requests
 
 **Both Mode**:
-- Tries dynamic authentication first
-- Falls back to static credentials if device has no provisioning creds
-- Most flexible option
+- Tries dynamic authentication first (device-specific credentials)
+- Falls back to global one-time password if device has `global-one-time-pass=yes`
+- Most flexible option for mixed environments
 
 ### Template Organization
 
@@ -288,7 +291,7 @@ NGP/
 │   ├── .htaccess              # Apache rewrite rules & security headers
 │   └── index.php              # Application entry point
 ├── src/
-│   ├── Auth.php               # HTTP Basic Authentication (static + dynamic)
+│   ├── Auth.php               # HTTP Basic Authentication (global one-time password + dynamic)
 │   ├── Logger.php             # Logging functionality
 │   ├── NsApiClient.php        # ns-api integration
 │   ├── RateLimiter.php        # Rate limiting for authentication

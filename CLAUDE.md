@@ -137,14 +137,17 @@ NGP supports device-specific parameter overrides via the `device-models-override
 
 ### Security & Authentication
 - **Dynamic Authentication**: Validates device HTTP credentials against ns-api provisioning credentials
-  - Devices authenticate using their provisioning username/password from ns-api
+  - Devices authenticate using device-specific provisioning username/password from ns-api
   - No hardcoded credentials needed per device
-  - Falls back to static config credentials if provisioning creds unavailable
-- **Static Authentication**: Traditional config file username/password
+  - Most secure option
+- **Global One-Time Password**: Config file username/password for initial device provisioning
+  - Used when device has `global-one-time-pass=yes` in ns-api
+  - After first successful authentication, automatically disabled
+  - Device-specific credentials are generated for subsequent requests
 - **Auth Modes**:
-  - `dynamic` - Only accept device provisioning credentials
-  - `static` - Only accept config file credentials
-  - `both` - Accept either (dynamic first, then static fallback)
+  - `dynamic` - Only accept device-specific provisioning credentials (recommended)
+  - `static` - Only accept global one-time password (for initial provisioning)
+  - `both` - Try dynamic first, fall back to global one-time password
 
 ### Technology Stack
 - **Language**: PHP 7.4+
@@ -154,7 +157,7 @@ NGP supports device-specific parameter overrides via the `device-models-override
 
 ### Implementation Files
 - `public/index.php` - Main entry point, handles requests and orchestrates components
-- `src/Auth.php` - HTTP Basic Authentication handler (supports both static and dynamic credentials)
+- `src/Auth.php` - HTTP Basic Authentication handler (supports global one-time password and dynamic device-specific credentials)
 - `src/Logger.php` - Logging functionality (supports debug, info, warning, error levels)
 - `src/NsApiClient.php` - ns-api REST client using curl (extracts brand, model, provisioning creds)
 - `src/TemplateSelector.php` - Template selection engine based on brand/model with wildcard support
@@ -227,9 +230,13 @@ cp existing_template.xml templates/yealink/t46s/config.xml
 - **Directory-Based Templates**: No code changes needed to add new device support
   - Simply create `templates/{brand}/{model}/config.xml`
   - Brand/model from ns-api automatically maps to filesystem path
-- **Dynamic Credentials**: Devices authenticate using provisioning credentials from ns-api
-  - Field names: `device-provisioning-username`, `device-provisioning-password`
-  - Alternative names: `provisioning-username`, `provisioning_username`, etc.
+- **Authentication**:
+  - **Dynamic credentials**: Device-specific provisioning credentials from ns-api
+    - Field names: `device-provisioning-username`, `device-provisioning-password`
+    - Alternative names: `provisioning-username`, `provisioning_username`, etc.
+  - **Global one-time password**: Config file credentials for initial provisioning
+    - Used when device has `global-one-time-pass=yes` in ns-api
+    - Automatically disabled after first use
 - **Dynamic Variables** (v1.1.0+):
   - `device-models-overrides-blob` field parsed automatically
   - Parameters become top-level template variables

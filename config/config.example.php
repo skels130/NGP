@@ -8,11 +8,18 @@ return [
     // HTTP Basic Authentication
     'auth' => [
         'enabled' => true,
-        'mode' => 'dynamic',  // 'static' - use config credentials only
-                               // 'dynamic' - use device provisioning credentials from API
-                               // 'both' - try dynamic first, fall back to static
+        'mode' => 'dynamic',  // 'static' - use global one-time password only
+                               // 'dynamic' - use device provisioning credentials from API (recommended)
+                               // 'both' - try dynamic first, fall back to global one-time password
+
+        // Global one-time password (used for initial device provisioning)
+        // This password is used when:
+        // 1. Device has global-one-time-pass=yes in ns-api
+        // 2. mode is 'static' or 'both'
+        // After first successful auth, the one-time pass is disabled and
+        // device-specific credentials are generated automatically
         'username' => 'admin',
-        'password' => 'changeme',  // Change this! (used when mode is 'static' or 'both')
+        'password' => 'changeme',  // Change this!
     ],
 
     // ns-api Configuration

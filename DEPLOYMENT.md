@@ -110,7 +110,7 @@ sudo systemctl restart apache2
 
 On your NetSapiens NDP server, configure it to proxy `/gateway/` requests to your NGP server.
 
-#### Option A: Apache Proxy (if NDP uses Apache)
+#### Option A: Apache Proxy 
 
 Add to NDP server Apache configuration:
 
@@ -134,31 +134,7 @@ LoadModule proxy_http_module modules/mod_proxy_http.so
 </Location>
 ```
 
-#### Option B: Nginx Proxy (if NDP uses Nginx)
-
-Add to NDP server Nginx configuration:
-
-```nginx
-location /gateway/ {
-    proxy_pass https://config.example.com/gateway/;
-    proxy_http_version 1.1;
-
-    # Pass headers
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-
-    # Pass authentication
-    proxy_pass_request_headers on;
-
-    # SSL verification
-    proxy_ssl_verify on;
-    proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
-}
-```
-
-#### Option C: Strip /gateway/ Prefix (Alternative)
+#### Option B: Strip /gateway/ Prefix (Alternative)
 
 If you prefer to strip the `/gateway/` prefix before proxying:
 
@@ -169,14 +145,6 @@ If you prefer to strip the `/gateway/` prefix before proxying:
     RewriteRule ^/gateway/(.*)$ https://config.example.com/$1 [P,L]
     ProxyPassReverse https://config.example.com/
 </Location>
-```
-
-**Nginx:**
-```nginx
-location /gateway/ {
-    rewrite ^/gateway/(.*)$ /$1 break;
-    proxy_pass https://config.example.com;
-}
 ```
 
 ### 4. Configure Gateway Devices

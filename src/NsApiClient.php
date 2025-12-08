@@ -178,6 +178,7 @@ class NsApiClient
         }
 
         $transport = $provisioningData['device-provisioning-sip-transport-protocol'] ?? 'udp';
+        $provisioningServer = $provisioningData['device-provisioning-ndp-hostname'] ?? null;
 
         return [
             'sip_server' => $sipServer,
@@ -187,7 +188,8 @@ class NsApiClient
             'tls_port' => $tlsPort,
             'provisioning_username' => $provisioningUsername,
             'provisioning_password' => $provisioningPassword,
-            'ndp_hostname' => $provisioningData['device-provisioning-ndp-hostname'] ?? null,  // Keep for backward compatibility
+            'provisioning_server' => $provisioningServer,
+            'ndp_hostname' => $provisioningServer,  // Keep for backward compatibility
             'sip_transport_protocol' => $transport,  // Alias for template compatibility
             'lines' => $lines,
             'button_count' => $buttonCount,

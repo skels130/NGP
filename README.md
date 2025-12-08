@@ -234,6 +234,7 @@ The template parser supports variables, conditionals, and loops:
 - `{{device_info.tls_port}}` - TLS port for SIP (e.g., 5061)
 - `{{device_info.provisioning_username}}` - Provisioning username (HTTP Basic Auth)
 - `{{device_info.provisioning_password}}` - Provisioning password (HTTP Basic Auth)
+- `{{device_info.provisioning_server}}` - Provisioning server hostname (NDP server)
 - `{{device_info.lines.N.username}}` - Username for line N (0-47)
 - `{{device_info.lines.N.password}}` - SIP password for line N
 - `{{device_info.lines.N.auth_id}}` - Auth ID for line N

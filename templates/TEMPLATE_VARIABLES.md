@@ -39,6 +39,7 @@ Custom parameters from `device-models-overrides-blob` field in ns-api.
 |----------|---------|-------------|
 | `{{device_info.provisioning_username}}` | `xK2mP9nQ4vR8` | Provisioning username (HTTP Basic Auth) |
 | `{{device_info.provisioning_password}}` | `aB3cD4eF5gH6iJ7kL8mN9oP0qR1sT2u` | Provisioning password (HTTP Basic Auth) |
+| `{{device_info.provisioning_server}}` | `ngp-01.example.com` | Provisioning server hostname (NDP server) |
 
 ### Line Configuration (Per-Line)
 Access lines as array: `device_info.lines.N` where N is 0-47 (for 48 ports).

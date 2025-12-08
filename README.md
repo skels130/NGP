@@ -1,4 +1,4 @@
-# NGP
+# NGP (NDP Gateway Provisioning)
 
 Multi-vendor configuration generator for IP telephony devices. This web server dynamically generates device configuration files by querying the ns-api for SIP credentials and applying them to customizable templates.
 
@@ -8,10 +8,6 @@ Multi-vendor configuration generator for IP telephony devices. This web server d
 - **Dynamic Authentication**: Validates devices using provisioning credentials from ns-api
 - **Dynamic Configuration**: Generates configs based on MAC address and ns-api data
 - **Dynamic Variables**: Device-specific parameter overrides from ns-api `device-models-overrides-blob`
-- **Intelligent Template Selection**:
-  - Exact brand/model matching
-  - Wildcard pattern matching (e.g., `gxw42*` matches all GXW4200 models)
-  - Brand-level fallbacks
 - **Custom Template Parser**: Variables, conditionals, and loops
 - **Flexible Authentication Modes**: Static, dynamic, or hybrid
 - **Comprehensive Logging**: Debug, info, warning, and error levels
@@ -25,29 +21,14 @@ Multi-vendor configuration generator for IP telephony devices. This web server d
 - curl extension enabled
 - ns-api credentials
 
-## Security Features
 
-NGP implements comprehensive security hardening:
-
-- **XML Injection Protection**: All template variables are XML-escaped to prevent injection attacks
-- **Path Traversal Prevention**: Template paths validated with `realpath()` to ensure files are within allowed directories
-- **Timing-Safe Authentication**: Uses `hash_equals()` for credential comparison to prevent timing attacks
-- **Rate Limiting**: 5 failed attempts per minute per IP, 5-minute lockout after threshold
-- **HTTPS Enforcement**: Automatic HTTP→HTTPS redirect with HSTS headers
-- **Security Headers**: CSP, X-Frame-Options, X-Content-Type-Options, XSS Protection, Referrer-Policy
-- **Input Validation**: MAC address format validation, length limits on brand/model names
-- **Secure Random Generation**: Cryptographically secure credential generation using `random_int()`
-- **Sanitized Logging**: No passwords, credentials, or sensitive data logged
-- **SSL Certificate Validation**: All ns-api requests validate SSL certificates
-
-See `SECURITY_AUDIT_20251205.md` for complete security audit report.
 
 ## Architecture
 
-NGP is designed to work with NetSapiens NDP (Network Device Provisioning) server:
+NGP is designed to work with NS NDP server:
 
 ```
-Gateway → NetSapiens NDP Server (/gateway/) → NGP PHP Server
+Gateway → NS NDP Server (/gateway/) → NGP PHP Server
 ```
 
 Gateways request configs from the NDP server at `/gateway/{MAC}.cfg`, and the NDP server proxies these requests to your NGP server. See **DEPLOYMENT.md** for complete proxy setup instructions.
@@ -88,14 +69,6 @@ Gateways request configs from the NDP server at `/gateway/{MAC}.cfg`, and the ND
    - Point DocumentRoot to `public/` directory
    - Ensure .htaccess is allowed (AllowOverride All)
 
-   **Nginx:**
-   Add this location block to your server configuration:
-   ```nginx
-   location ~ ^/([A-Fa-f0-9]{12})\.cfg$ {
-       try_files $uri /index.php$is_args$args;
-   }
-   ```
-
 ## Configuration
 
 ### config/config.php
@@ -105,7 +78,7 @@ return [
     'auth' => [
         'enabled' => true,
         'mode' => 'dynamic',  // 'static', 'dynamic', or 'both'
-        'username' => 'admin',
+        'username' => 'admin', #One time global username/password here
         'password' => 'your-secure-password',
     ],
     'nsapi' => [
@@ -130,7 +103,6 @@ return [
 **Dynamic Mode** (Recommended):
 - Devices authenticate using provisioning credentials from ns-api
 - Credentials are retrieved from `/phones/{mac}` API response
-- No need to configure per-device passwords
 
 **Static Mode**:
 - All devices use the same username/password from config file
@@ -191,7 +163,7 @@ No code changes needed - just create the directory structure!
 
 ### Requesting Configuration Files
 
-In a NetSapiens deployment, devices request configurations from the NDP server:
+In a NS deployment, devices request configurations from the NDP server:
 ```
 http://ndp-server.example.com/gateway/{MAC}.cfg
 ```
@@ -221,14 +193,6 @@ The server will:
 5. **Select template** based on brand and model
 6. Parse template with device variables
 7. Return generated XML configuration
-
-### Device Configuration
-
-Configure your devices to:
-1. Use HTTP/HTTPS provisioning
-2. Set provisioning server to: `http://your-server.com`
-3. Set provisioning path to: `{MAC}.cfg`
-4. Use HTTP Basic Authentication with provisioning credentials from ns-api
 
 ### Template Syntax
 
@@ -380,43 +344,10 @@ tail -f logs/ngp.log
 - Review logs for API errors
 - Verify template path in configuration
 
-## Security Considerations
-
-NGP implements extensive security hardening (see Security Features section above). Additional best practices:
-
-- **HTTPS**: Automatically enforced with HSTS headers
-- **Strong Credentials**: Use strong passwords; consider dynamic-only authentication mode
-- **File Permissions**: Ensure config.php is 640, logs are 640, and rate limit directory is 750
-- **API Key Rotation**: Regularly rotate ns-api keys
-- **Monitor Logs**: Watch for rate limiting triggers and authentication failures
-- **Updates**: Keep PHP and web server updated with security patches
-
-## Development
-
-To modify the template parser or add features:
-
-1. **Test locally** with a development server:
-   ```bash
-   cd public
-   php -S localhost:8000
-   ```
-
-2. **Enable debug logging** in config.php:
-   ```php
-   'logging' => [
-       'level' => 'debug',
-   ]
-   ```
-
-3. **Monitor logs** during testing:
-   ```bash
-   tail -f logs/ngp.log
-   ```
-
 ## Production Deployment
 
-For production deployment with NetSapiens NDP proxy configuration, see **DEPLOYMENT.md** which covers:
-- NetSapiens NDP server proxy setup (Apache/Nginx)
+For production deployment with NS NDP proxy configuration, see **DEPLOYMENT.md** which covers:
+- NS NDP server proxy setup (Apache)
 - Security hardening and firewall configuration
 - Production checklist and verification steps
 - Troubleshooting common deployment issues
@@ -437,43 +368,6 @@ For production deployment with NetSapiens NDP proxy configuration, see **DEPLOYM
 - Added concise variable reference in `templates/TEMPLATE_VARIABLES.md`
 - Improved template examples with dynamic variable usage
 
-### v1.0.0 - 2025-12-05
-
-**Initial Release** - Production-ready provisioning system with comprehensive security
-
-**Core Features:**
-- Multi-vendor device support with template-based configuration
-- Dynamic authentication using ns-api provisioning credentials
-- Per-line SIP credential retrieval (up to 48 lines per device)
-- One-time password support for device bootstrapping
-- Intelligent template selection (exact, wildcard, brand fallback)
-- Custom template parser with variables, conditionals, and loops
-
-**Security Hardening:**
-- XML injection protection (ENT_XML1 escaping)
-- Path traversal prevention (realpath validation)
-- Timing-safe credential comparison (hash_equals)
-- Rate limiting (5 attempts/min, 5-min lockout)
-- HTTPS enforcement with HSTS
-- Security headers (CSP, X-Frame-Options, etc.)
-- Input validation and length limits
-- Secure random credential generation
-- Sanitized logging (no credential exposure)
-- SSL certificate validation
-
-**Supported Devices:**
-- Grandstream GXW-4216 (16-port FXS gateway)
-- Grandstream GXW-4224 (24-port FXS gateway)
-- Grandstream GXW-4232 (32-port FXS gateway)
-- Grandstream GXW-4248 (48-port FXS gateway)
-
-**Components:**
-- Auth.php - Dynamic + static HTTP Basic Authentication
-- RateLimiter.php - IP-based rate limiting with lockout
-- NsApiClient.php - ns-api integration with per-line credential retrieval
-- TemplateParser.php - XML-safe template parsing
-- TemplateSelector.php - Path-traversal-safe template selection
-- Logger.php - Sanitized logging system
 
 ## License
 

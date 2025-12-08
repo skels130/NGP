@@ -20,15 +20,15 @@ Custom parameters from `device-models-overrides-blob` field in ns-api.
 | `{{mac}}` | `C074AD893044` | Device MAC address |
 | `{{brand}}` | `grandstream` | Device brand |
 | `{{model}}` | `gxw-4248` | Device model |
-| `{{domain}}` | `ArrowResidential` | Domain name |
+| `{{domain}}` | `CustomerDomain` | Domain name |
 | `{{user}}` | `1000` | User/extension |
 | `{{device}}` | `1000x` | Device identifier |
 
 ### SIP Server Configuration
 | Variable | Example | Description |
 |----------|---------|-------------|
-| `{{device_info.sip_server}}` | `LoshSandBox` | SIP server (domain name) |
-| `{{device_info.outbound_proxy}}` | `sgf-sb1.losh.com` | Outbound proxy FQDN |
+| `{{device_info.sip_server}}` | `CustomerDomain` | SIP server (domain name) |
+| `{{device_info.outbound_proxy}}` | `core1.example.com` | Outbound proxy FQDN |
 | `{{device_info.transport}}` | `udp` | Transport protocol (udp/tcp/tls) |
 | `{{device_info.tcp_port}}` | `5060` | TCP port for SIP |
 | `{{device_info.tls_port}}` | `5061` | TLS port for SIP |
@@ -112,13 +112,13 @@ The `device-models-overrides-blob` field from ns-api allows per-device parameter
 
 **Example ns-api Response:**
 ```
-device-models-overrides-blob: P2917="https://losh.com/logos/reece_logo_480x272.jpg" P2916="1"
+device-models-overrides-blob: P2917="https://example.com/logos/logo_484x320.jpg" P2916="1"
 ```
 
 **Template Usage:**
 ```xml
 <P2916>{{P2916}}</P2916>  <!-- Renders: <P2916>1</P2916> -->
-<P2917>{{P2917}}</P2917>  <!-- Renders: <P2917>https://losh.com/logos/reece_logo_480x272.jpg</P2917> -->
+<P2917>{{P2917}}</P2917>  <!-- Renders: <P2917>https://example.com/logos/logo_484x320.jpg</P2917> -->
 ```
 
 **Features:**

@@ -216,12 +216,12 @@
 
     <!-- HTTP/HTTPS/FTP/FTPS User Name -->
     <!-- String Max Length: 40; between ascii values 33 and 126 -->
-    <P1360></P1360>
+    <P1360>{{device_info.provisioning_username}}</P1360>
 
     <!-- HTTP/HTTPS/FTP/FTPS Password -->
     <!-- String Max Length: 40; between ascii values 33 and 126 -->
     <!-- Mandatory -->
-    <P1361></P1361>
+    <P1361>{{device_info.provisioning_password}}</P1361>
 
     <!-- Always send HTTP Basic Authentication Information. 0 - No, 1- Yes. -->
     <!-- Number: 0,1 -->
@@ -239,7 +239,7 @@
 
     <!-- Config Server Path -->
     <!-- String: serveraddress -->
-    <P237>fm.grandstream.com/gs</P237>
+    <P237>{{device_info.provisioning_server}}/gateway/</P237>
 
     <!-- Firmware File Prefix -->
     <!-- String Max Length: 32; between ascii values 33 and 126 -->
@@ -1137,7 +1137,7 @@
     <!-- DNS Mode. 0 - A Record, 1 - SRV, 2 - NAPTR/SRV, 3 - Use Configured IP . -->
     <!-- Number: 0,1,2,3 -->
     <!-- Mandatory -->
-    <P103>0</P103>
+    <P103>1</P103>
 
     <!-- DNS SRV Failover Mode, 0 - Default, 1 - Saved one until DNS TTL, 2 - Saved one until no response, 3 - Failback follows failback expiration timer -->
     <!-- Number: 0,1,2,3 -->
@@ -1190,8 +1190,11 @@
     <!-- SIP Transport. 0 - UDP, 1 - TCP, 2 - TLS/TCP -->
     <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
+    {{if device-info.transport == 'tcp'}}
+    <P130>1</P130>
+    {{else}}
     <P130>0</P130>
-
+    {{endif}}
     <!-- SIP Registration. 0 - No, 1 - Yes -->
     <!-- Number: 0,1 -->
     <!-- Mandatory -->

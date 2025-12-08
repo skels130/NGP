@@ -18,7 +18,7 @@ class RateLimiter
      * @param int $timeWindow Time window in seconds (default: 60)
      * @param int $lockoutDuration Lockout duration in seconds after max attempts (default: 300)
      */
-    public function __construct(Logger $logger, string $storageDir, int $maxAttempts = 5, int $timeWindow = 60, int $lockoutDuration = 300)
+    public function __construct(Logger $logger, string $storageDir, int $maxAttempts = 20, int $timeWindow = 60, int $lockoutDuration = 300)
     {
         $this->logger = $logger;
         $this->storageDir = rtrim($storageDir, '/');

@@ -212,11 +212,12 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
         header('Content-Disposition: attachment; filename="' . $macAddress . '.' . $fileExtension . '"');
         echo $configXml;
 
-        // If we used the global one-time password, disable it and generate device-specific credentials
+        // If we used the global one-time password, disable it and set device-specific credentials
         // This ensures the device can only use the one-time password once for initial provisioning
+        // Pass the credentials that were already generated and sent in the config to avoid mismatch
         if ($usedOneTimePass) {
-            $logger->info("Disabling global one-time password and generating device-specific credentials for MAC: $macAddress");
-            $nsapi->updateGlobalOneTimePass($macAddress, 'no');
+            $logger->info("Disabling global one-time password and setting device-specific credentials for MAC: $macAddress");
+            $nsapi->updateGlobalOneTimePass($macAddress, 'no', $provisioningUsername, $provisioningPassword);
         }
 
     } catch (Exception $e) {

@@ -239,7 +239,7 @@
 
     <!-- Config Server Path -->
     <!-- String: serveraddress -->
-    <P237>{{device_info.provisioning_server}}/gateway/</P237>
+    <P237>{{device_info.provisioning_server}}/gateway</P237>
 
     <!-- Firmware File Prefix -->
     <!-- String Max Length: 32; between ascii values 33 and 126 -->

@@ -286,26 +286,32 @@ class NsApiClient
 
     /**
      * Update global-one-time-pass field for a device
-     * When setting to 'no', also generates and sets random provisioning credentials
+     * When setting to 'no', uses provided credentials or generates new random ones
      *
      * @param string $mac MAC address (12 hex characters)
      * @param string $value New value ('yes' or 'no')
+     * @param string|null $username Optional username to set (if null, generates random)
+     * @param string|null $password Optional password to set (if null, generates random)
      * @return bool Success or failure
      */
-    public function updateGlobalOneTimePass(string $mac, string $value): bool
+    public function updateGlobalOneTimePass(string $mac, string $value, ?string $username = null, ?string $password = null): bool
     {
         $endpoint = "/phones/" . strtoupper($mac);
         $data = ['global-one-time-pass' => $value];
 
-        // When disabling one-time pass, generate random credentials
+        // When disabling one-time pass, use provided credentials or generate random ones
         if ($value === 'no') {
-            $username = $this->generateRandomString(12);
-            $password = $this->generateRandomString(30);
+            // Use provided credentials if available, otherwise generate new ones
+            if ($username === null || $password === null) {
+                $username = $this->generateRandomString(12);
+                $password = $this->generateRandomString(30);
+                $this->logger->debug("Generated random provisioning parameters for $mac");
+            } else {
+                $this->logger->debug("Using provided provisioning parameters for $mac");
+            }
 
             $data['device-provisioning-username'] = $username;
             $data['device-provisioning-password'] = $password;
-
-            $this->logger->debug("Generated random provisioning parameters for $mac");
         }
 
         $this->logger->debug("Updating global-one-time-pass for $mac to: $value");
@@ -386,7 +392,7 @@ class NsApiClient
     private function generateRandomString(int $length): string
     {
         // Include special characters for higher entropy
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-_=+[]{}|;:,.<>?';
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = '';
 

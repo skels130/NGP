@@ -44,8 +44,9 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
         $logger = new Logger($config['logging']);
         $logger->info("Config request received for MAC: $macAddress");
 
-        // Initialize rate limiter
-        $rateLimiter = new RateLimiter($logger, __DIR__ . '/../logs/ratelimit');
+        // Initialize rate limiter with trusted proxy configuration
+        $trustedProxies = $config['trusted_proxies'] ?? [];
+        $rateLimiter = new RateLimiter($logger, __DIR__ . '/../logs/ratelimit', 20, 60, 300, $trustedProxies);
 
         // Check rate limiting
         if ($rateLimiter->isRateLimited()) {

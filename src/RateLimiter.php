@@ -10,6 +10,7 @@ class RateLimiter
     private $maxAttempts;
     private $timeWindow;
     private $lockoutDuration;
+    private $trustedProxies;
 
     /**
      * @param Logger $logger Logger instance
@@ -17,14 +18,16 @@ class RateLimiter
      * @param int $maxAttempts Maximum attempts allowed within time window
      * @param int $timeWindow Time window in seconds (default: 60)
      * @param int $lockoutDuration Lockout duration in seconds after max attempts (default: 300)
+     * @param array $trustedProxies List of trusted proxy IPs (only trust X-Forwarded-For from these IPs)
      */
-    public function __construct(Logger $logger, string $storageDir, int $maxAttempts = 20, int $timeWindow = 60, int $lockoutDuration = 300)
+    public function __construct(Logger $logger, string $storageDir, int $maxAttempts = 20, int $timeWindow = 60, int $lockoutDuration = 300, array $trustedProxies = [])
     {
         $this->logger = $logger;
         $this->storageDir = rtrim($storageDir, '/');
         $this->maxAttempts = $maxAttempts;
         $this->timeWindow = $timeWindow;
         $this->lockoutDuration = $lockoutDuration;
+        $this->trustedProxies = $trustedProxies;
 
         // Create storage directory if it doesn't exist
         if (!is_dir($this->storageDir)) {
@@ -203,23 +206,53 @@ class RateLimiter
 
     /**
      * Get client IP address
+     * Only trusts X-Forwarded-For header when request comes from a trusted proxy
      *
      * @return string Client IP address
      */
     private function getClientIP(): string
     {
-        // Check for IP address in various headers (proxy-aware)
-        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $remoteAddr = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 
-        // If behind a proxy, try to get real IP
-        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-            $ip = trim($ips[0]);
-        } elseif (isset($_SERVER['HTTP_X_REAL_IP'])) {
-            $ip = $_SERVER['HTTP_X_REAL_IP'];
+        // If no trusted proxies configured, use REMOTE_ADDR directly (safer default)
+        if (empty($this->trustedProxies)) {
+            $this->logger->debug("Rate limit: Using REMOTE_ADDR (no trusted proxies): $remoteAddr");
+            return $remoteAddr;
         }
 
-        return $ip;
+        // Only trust X-Forwarded-For if request comes from a trusted proxy
+        if ($this->isTrustedProxy($remoteAddr)) {
+            // Try X-Forwarded-For first (standard proxy header)
+            if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+                $clientIp = trim($ips[0]); // First IP is the original client
+                $this->logger->debug("Rate limit: Using X-Forwarded-For (trusted proxy $remoteAddr): $clientIp");
+                return $clientIp;
+            }
+
+            // Fall back to X-Real-IP
+            if (isset($_SERVER['HTTP_X_REAL_IP'])) {
+                $clientIp = $_SERVER['HTTP_X_REAL_IP'];
+                $this->logger->debug("Rate limit: Using X-Real-IP (trusted proxy $remoteAddr): $clientIp");
+                return $clientIp;
+            }
+        } else {
+            $this->logger->debug("Rate limit: Untrusted proxy $remoteAddr, using REMOTE_ADDR");
+        }
+
+        // Fall back to direct connection IP
+        return $remoteAddr;
+    }
+
+    /**
+     * Check if IP is a trusted proxy
+     *
+     * @param string $ip IP address to check
+     * @return bool True if IP is in trusted proxies list
+     */
+    private function isTrustedProxy(string $ip): bool
+    {
+        return in_array($ip, $this->trustedProxies, true);
     }
 
     /**

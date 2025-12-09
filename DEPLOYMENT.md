@@ -73,8 +73,14 @@ Create Apache virtual host: `/etc/apache2/sites-available/config-gen.conf`
     # Public directory settings
     <Directory /var/www/config-gen/public>
         AllowOverride All
-        Require all granted
         Options -Indexes +FollowSymLinks
+
+        # IP Restriction: Only allow NDP proxy servers (recommended for production)
+        # Uncomment and add your NDP server IPs to restrict access
+        # Require ip 192.168.1.100
+        # Require ip 10.0.0.50
+        # Or allow from all (less secure)
+        Require all granted
     </Directory>
 
     # Deny access to parent directory (safety net)
@@ -110,7 +116,7 @@ sudo systemctl restart apache2
 
 On your NetSapiens NDP server, configure it to proxy `/gateway/` requests to your NGP server.
 
-#### Option A: Apache Proxy 
+#### Option A: Apache Proxy
 
 Add to NDP server Apache configuration:
 
@@ -118,6 +124,7 @@ Add to NDP server Apache configuration:
 # Load required modules
 LoadModule proxy_module modules/mod_proxy.so
 LoadModule proxy_http_module modules/mod_proxy_http.so
+LoadModule headers_module modules/mod_headers.so
 
 # Proxy configuration for gateway configs
 <Location /gateway>
@@ -127,6 +134,10 @@ LoadModule proxy_http_module modules/mod_proxy_http.so
     # Pass authentication headers
     ProxyPreserveHost Off
 
+    # IMPORTANT: Forward original client IP for rate limiting
+    # This allows NGP to rate-limit individual devices, not just the proxy
+    RequestHeader set X-Forwarded-For "%{REMOTE_ADDR}e"
+
     # SSL verification
     SSLProxyEngine On
     SSLProxyVerify require
@@ -134,18 +145,49 @@ LoadModule proxy_http_module modules/mod_proxy_http.so
 </Location>
 ```
 
+**Note**: After configuring the proxy, you must also configure NGP to trust the proxy IP - see "Configure Trusted Proxies" section below.
+
 #### Option B: Strip /gateway/ Prefix (Alternative)
 
 If you prefer to strip the `/gateway/` prefix before proxying:
 
 **Apache:**
 ```apache
+LoadModule headers_module modules/mod_headers.so
+
 <Location /gateway>
+    # Forward original client IP for rate limiting
+    RequestHeader set X-Forwarded-For "%{REMOTE_ADDR}e"
+
     RewriteEngine On
     RewriteRule ^/gateway/(.*)$ https://config.example.com/$1 [P,L]
     ProxyPassReverse https://config.example.com/
 </Location>
 ```
+
+### Configure Trusted Proxies (Required for Rate Limiting)
+
+When NGP is behind a proxy, you **must** configure trusted proxy IPs so rate limiting works correctly. Without this, all requests appear to come from the proxy IP, making rate limiting ineffective.
+
+**Edit `/var/www/config-gen/config/config.php`:**
+
+```php
+// Trusted Proxies (for X-Forwarded-For support)
+// Add your NDP server IPs here
+'trusted_proxies' => [
+    '192.168.1.100',  // NDP server 1
+    '10.0.0.50',      // NDP server 2
+],
+```
+
+**How It Works:**
+1. NDP proxy forwards original device IP in `X-Forwarded-For` header
+2. NGP checks if request comes from a trusted proxy IP
+3. If trusted, NGP uses the `X-Forwarded-For` IP for rate limiting
+4. If not trusted, NGP ignores `X-Forwarded-For` (security protection)
+5. Each device gets its own rate limit, not shared with the proxy
+
+**Important**: Only add IPs of servers you control. Untrusted sources could spoof client IPs.
 
 ### 4. Configure Gateway Devices
 
@@ -196,6 +238,25 @@ tail -f /var/www/config-gen/logs/ngp.log
 # [INFO] Configuration generated successfully for MAC: C074AD893044
 ```
 
+#### Test 5: Verify Rate Limiting with Proxy
+```bash
+# Enable debug logging in config.php:
+'logging' => ['level' => 'debug']
+
+# Make a request through the proxy
+curl -u username:password http://ndp-server.com/gateway/C074AD893044.cfg
+
+# Check logs - should show original device IP, not proxy IP:
+tail -f /var/www/config-gen/logs/ngp.log | grep "Rate limit"
+# Should see: "Rate limit: Using X-Forwarded-For (trusted proxy 192.168.1.100): <device-ip>"
+# NOT: "Rate limit: Using REMOTE_ADDR"
+
+# If you see REMOTE_ADDR instead of X-Forwarded-For:
+# 1. Check NDP proxy has RequestHeader set X-Forwarded-For "%{REMOTE_ADDR}e"
+# 2. Check config.php has NDP IP in trusted_proxies array
+# 3. Restart Apache on NDP server: sudo systemctl restart apache2
+```
+
 ### 6. Production Checklist
 
 Before going live:
@@ -226,8 +287,10 @@ Before going live:
   ],
   ```
 - [ ] **DocumentRoot**: Verify Apache/Nginx DocumentRoot points to `public/`
-- [ ] **Firewall Rules**: Only allow NDP server to access NGP server
+- [ ] **IP Restrictions**: Enable Apache IP restrictions to only allow NDP server (see Security Notes)
+- [ ] **Firewall Rules**: Configure firewall to only allow NDP server to access NGP server
 - [ ] **API Keys**: Use production ns-api credentials
+- [ ] **Trusted Proxies**: Configure trusted proxy IPs in `config/config.php` for rate limiting
 - [ ] **Templates**: Verify all required device templates are installed
 - [ ] **Backup Config**: Backup `config/config.php` securely (encrypted)
 
@@ -290,6 +353,41 @@ Before going live:
 3. Verify template filename is `config.xml`
 4. Check template file permissions (should be readable by www-data)
 
+### Rate Limiting Not Working with Proxy
+
+**Symptom**: All devices get blocked when one device fails authentication too many times
+
+**Cause**: NGP is using proxy IP for rate limiting instead of original device IP
+
+**Check**:
+1. Verify NDP proxy sends `X-Forwarded-For` header:
+   ```bash
+   # On NDP server Apache config
+   grep -r "X-Forwarded-For" /etc/apache2/
+   # Should show: RequestHeader set X-Forwarded-For "%{REMOTE_ADDR}e"
+   ```
+
+2. Verify NGP config has trusted proxies:
+   ```bash
+   # On NGP server
+   grep -A 5 "trusted_proxies" /var/www/config-gen/config/config.php
+   # Should show your NDP server IPs
+   ```
+
+3. Check NGP logs to see which IP is being used:
+   ```bash
+   # Enable debug logging first
+   tail -f /var/www/config-gen/logs/ngp.log | grep "Rate limit"
+
+   # Make a test request, look for:
+   # "Rate limit: Using X-Forwarded-For (trusted proxy X.X.X.X): Y.Y.Y.Y"
+   ```
+
+4. If still using `REMOTE_ADDR`:
+   - Verify headers module loaded on NDP: `apache2ctl -M | grep headers`
+   - Restart Apache on NDP server: `sudo systemctl restart apache2`
+   - Clear any existing rate limit locks: `rm /var/www/config-gen/logs/ratelimit/*.json`
+
 ## Proxy URL Patterns
 
 The NGP server handles multiple URL patterns:
@@ -303,12 +401,57 @@ Both patterns are supported by the `.htaccess` rewrite rules.
 
 ## Security Notes
 
-- **Network Isolation**: Ideally, NGP server should only be accessible from NDP server
-- **Firewall Rules**: Lock down NGP server to only accept connections from NDP server IP
-- **HTTPS Required**: All proxy communication should use HTTPS
+### IP Restriction (Recommended)
+
+Restrict NGP access to only your NetSapiens NDP proxy servers using one of these methods:
+
+#### Apache .htaccess Method
+Add to `/var/www/config-gen/public/.htaccess`:
+```apache
+# Allow only from NDP proxy servers
+Order Deny,Allow
+Deny from all
+Allow from 192.168.1.100
+Allow from 10.0.0.50
+# Add more NDP server IPs as needed
+```
+
+#### Apache VirtualHost Method (Preferred)
+In your Apache virtual host configuration `/etc/apache2/sites-available/config-gen.conf`:
+```apache
+<Directory /var/www/config-gen/public>
+    # Only allow NDP proxy server IPs
+    Require ip 192.168.1.100
+    Require ip 10.0.0.50
+    # IPv6 if needed
+    # Require ip 2001:db8::1
+</Directory>
+```
+
+After making changes:
+```bash
+sudo systemctl reload apache2
+```
+
+#### Firewall Method (OS Level)
+Using iptables to block all except NDP servers:
+```bash
+# Allow only from specific IPs
+sudo iptables -A INPUT -p tcp --dport 443 -s 192.168.1.100 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 443 -s 10.0.0.50 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 443 -j DROP
+
+# Save rules
+sudo netfilter-persistent save
+```
+
+### Additional Security Practices
+
+- **Network Isolation**: Deploy NGP server on private network only accessible from NDP server
+- **HTTPS Required**: All proxy communication should use HTTPS with valid certificates
 - **Credential Rotation**: Regularly rotate API keys and static authentication credentials
 - **Log Monitoring**: Monitor logs for suspicious activity or authentication failures
-- **Rate Limiting**: Consider adding rate limiting to prevent abuse
+- **Rate Limiting**: Built-in rate limiting helps prevent brute force attacks
 
 ## Scaling Considerations
 

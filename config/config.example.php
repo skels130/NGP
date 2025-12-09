@@ -53,6 +53,14 @@ return [
         // Note: If no template is found, a 404 error will be returned
     ],
 
+    // Trusted Proxies (for X-Forwarded-For support)
+    // When behind a proxy (like NetSapiens NDP), only trust X-Forwarded-For from these IPs
+    'trusted_proxies' => [
+        // Add your NDP server IPs here
+        // '192.168.1.100',
+        // '10.0.0.50',
+    ],
+
     // Logging
     'logging' => [
         'enabled' => true,

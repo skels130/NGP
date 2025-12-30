@@ -125,8 +125,9 @@ class NsApiClient
         $buttonCount = $provisioningData['device-models-count-buttons'] ?? 48;
 
         for ($i = 1; $i <= $buttonCount; $i++) {
-            $sipUriKey = "device-provisioning-sip-uri-{$i}";
-            $enableKey = "device-provisioning-line-{$i}-enabled";
+            // Lines 1-24 use device-provisioning-sip-uri-X, lines 25-48 use deviceX
+            $sipUriKey = ($i <= 24) ? "device-provisioning-sip-uri-{$i}" : "device{$i}";
+            $enableKey = "line{$i}_enable";
 
             $sipUri = $provisioningData[$sipUriKey] ?? null;
             $enabled = ($provisioningData[$enableKey] ?? 'no') === 'yes';

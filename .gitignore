@@ -41,3 +41,6 @@ temp/
 # Cache
 cache/
 *.cache
+
+# Claude Code
+.claude/settings.local.json

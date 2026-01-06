@@ -1190,7 +1190,7 @@
     <!-- SIP Transport. 0 - UDP, 1 - TCP, 2 - TLS/TCP -->
     <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
-    {{if device-info.transport == 'tcp'}}
+    {{if device_info.transport == 'tcp'}}
     <P130>1</P130>
     {{else}}
     <P130>0</P130>

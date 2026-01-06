@@ -137,8 +137,17 @@ class TemplateParser
      */
     private function evaluateCondition(string $condition): bool
     {
-        // Replace variables in condition
-        $condition = preg_replace_callback('/([a-zA-Z0-9_\.]+)/', function ($matches) {
+        // First, extract and preserve quoted strings so we don't replace content inside them
+        // Use a placeholder with NO letters so the variable regex won't match any part of it
+        $quotedStrings = [];
+        $condition = preg_replace_callback('/([\'"])([^\'"]*)\1/', function ($matches) use (&$quotedStrings) {
+            $placeholder = '<<<' . count($quotedStrings) . '>>>';
+            $quotedStrings[$placeholder] = $matches[0];
+            return $placeholder;
+        }, $condition);
+
+        // Replace variables in condition (but not reserved words)
+        $condition = preg_replace_callback('/([a-zA-Z][a-zA-Z0-9_\.]*)/', function ($matches) {
             $varName = $matches[1];
 
             // Check if it's a reserved word
@@ -159,6 +168,11 @@ class TemplateParser
                 return "'" . addslashes($value) . "'";
             }
         }, $condition);
+
+        // Restore quoted strings
+        foreach ($quotedStrings as $placeholder => $original) {
+            $condition = str_replace($placeholder, $original, $condition);
+        }
 
         // Replace logical operators
         $condition = str_replace(['&&', '||', '!'], ['and', 'or', 'not'], $condition);

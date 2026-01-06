@@ -179,7 +179,8 @@ class NsApiClient
         }
 
         $transport = $provisioningData['device-provisioning-sip-transport-protocol'] ?? 'udp';
-        $provisioningServer = $provisioningData['device-provisioning-ndp-hostname'] ?? null;
+        $provisioningServer = $provisioningData['ndphostname'] ??
+                              $provisioningData['device-provisioning-ndp-hostname'] ?? null;
 
         return [
             'sip_server' => $sipServer,

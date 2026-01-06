@@ -6262,7 +6262,7 @@
     <P4080>{{device_info.lines.20.username}}</P4080>
     <P4110>{{device_info.lines.20.auth_id}}</P4110>
     <P4140>{{device_info.lines.20.password}}</P4140>
-    <P4252></P4252>
+    <P4252>{{device_info.lines.20.extension}}</P4252>
     <P4170>0</P4170>
     {{if device_info.lines.20.extension}}
     <P4615>1</P4615>
@@ -6282,7 +6282,7 @@
     <P4081>{{device_info.lines.21.username}}</P4081>
     <P4111>{{device_info.lines.21.auth_id}}</P4111>
     <P4141>{{device_info.lines.21.password}}</P4141>
-    <P4253></P4253>
+    <P4253>{{device_info.lines.21.extension}}</P4253>
     <P4171>0</P4171>
     {{if device_info.lines.21.extension}}
     <P4616>1</P4616>
@@ -6302,7 +6302,7 @@
     <P4082>{{device_info.lines.22.username}}</P4082>
     <P4112>{{device_info.lines.22.auth_id}}</P4112>
     <P4142>{{device_info.lines.22.password}}</P4142>
-    <P4254></P4254>
+    <P4254>{{device_info.lines.22.extension}}</P4254>
     <P4172>0</P4172>
     {{if device_info.lines.22.extension}}
     <P4617>1</P4617>
@@ -6322,7 +6322,7 @@
     <P4083>{{device_info.lines.23.username}}</P4083>
     <P4113>{{device_info.lines.23.auth_id}}</P4113>
     <P4143>{{device_info.lines.23.password}}</P4143>
-    <P4255></P4255>
+    <P4255>{{device_info.lines.23.extension}}</P4255>
     <P4173>0</P4173>
     {{if device_info.lines.23.extension}}
     <P4618>1</P4618>
@@ -6342,7 +6342,7 @@
     <P4084>{{device_info.lines.24.username}}</P4084>
     <P4114>{{device_info.lines.24.auth_id}}</P4114>
     <P4144>{{device_info.lines.24.password}}</P4144>
-    <P4256></P4256>
+    <P4256>{{device_info.lines.24.extension}}</P4256>
     <P4174>0</P4174>
     {{if device_info.lines.24.extension}}
     <P4619>1</P4619>
@@ -6363,7 +6363,7 @@
     <P4085>{{device_info.lines.25.username}}</P4085>
     <P4115>{{device_info.lines.25.auth_id}}</P4115>
     <P4145>{{device_info.lines.25.password}}</P4145>
-    <P4257></P4257>
+    <P4257>{{device_info.lines.25.extension}}</P4257>
     <P4175>0</P4175>
     {{if device_info.lines.25.extension}}
     <P4620>1</P4620>
@@ -6383,7 +6383,7 @@
     <P4086>{{device_info.lines.26.username}}</P4086>
     <P4116>{{device_info.lines.26.auth_id}}</P4116>
     <P4146>{{device_info.lines.26.password}}</P4146>
-    <P4258></P4258>
+    <P4258>{{device_info.lines.26.extension}}</P4258>
     <P4176>0</P4176>
     {{if device_info.lines.26.extension}}
     <P4621>1</P4621>
@@ -6403,7 +6403,7 @@
     <P4087>{{device_info.lines.27.username}}</P4087>
     <P4117>{{device_info.lines.27.auth_id}}</P4117>
     <P4147>{{device_info.lines.27.password}}</P4147>
-    <P4259></P4259>
+    <P4259>{{device_info.lines.27.extension}}</P4259>
     <P4177>0</P4177>
     {{if device_info.lines.27.extension}}
     <P4622>1</P4622>
@@ -6423,7 +6423,7 @@
     <P4088>{{device_info.lines.28.username}}</P4088>
     <P4118>{{device_info.lines.28.auth_id}}</P4118>
     <P4148>{{device_info.lines.28.password}}</P4148>
-    <P4260></P4260>
+    <P4260>{{device_info.lines.28.extension}}</P4260>
     <P4178>0</P4178>
     {{if device_info.lines.28.extension}}
     <P4623>1</P4623>
@@ -6443,7 +6443,7 @@
     <P4089>{{device_info.lines.29.username}}</P4089>
     <P4119>{{device_info.lines.29.auth_id}}</P4119>
     <P4149>{{device_info.lines.29.password}}</P4149>
-    <P4261></P4261>
+    <P4261>{{device_info.lines.29.extension}}</P4261>
     <P4179>0</P4179>
     {{if device_info.lines.29.extension}}
     <P4624>1</P4624>
@@ -6460,10 +6460,10 @@
     <P4887>5060</P4887>
 
     <!-- FXS 31 -->
-    <P4240></P4240>
-    <P4242></P4242>
-    <P4244></P4244>
-    <P4262></P4262>
+    <P4240>{{device_info.lines.30.username}}</P4240>
+    <P4242>{{device_info.lines.30.auth_id}}</P4242>
+    <P4244>{{device_info.lines.30.password}}</P4244>
+    <P4262>{{device_info.lines.30.extension}}</P4262>
     <P4246>0</P4246>
     {{if device_info.lines.30.extension}}
     <P4625>1</P4625>

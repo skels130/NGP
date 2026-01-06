@@ -102,38 +102,49 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
         $logger->debug("Found device: domain=$domain, user=$user, device=$device, brand=$brand, model=$model, global-one-time-pass=$globalOneTimePass");
 
         // HTTP Authentication
-        // Mode 'dynamic': Use device-specific provisioning credentials from ns-api
-        // Mode 'static': Use global one-time password from config.php
-        // Mode 'both': Try dynamic first, fall back to global one-time password
+        // Mode 'static': Always use global password from config (ignores global-one-time-pass)
+        // Mode 'dynamic': Use global-one-time-pass field to determine auth method:
+        //   - If global-one-time-pass=yes: ONLY accept global one-time password
+        //   - If global-one-time-pass=no: ONLY accept device-specific credentials
         $auth = new Auth($config['auth']);
         $authMode = $config['auth']['mode'] ?? 'dynamic';
 
         $authenticated = false;
         $usedOneTimePass = false;
 
-        if ($authMode === 'dynamic' || $authMode === 'both') {
-            // Try device-specific provisioning credentials from ns-api
-            if ($provisioningUsername && $provisioningPassword) {
-                if ($auth->validateCredentials($provisioningUsername, $provisioningPassword)) {
-                    $logger->debug("Authentication successful (device credentials)");
-                    $authenticated = true;
-                } else {
-                    $logger->warning("Authentication validation failed (device credentials)");
-                }
+        if ($authMode === 'static') {
+            // Static mode: Always use global password from config
+            $logger->debug("Auth mode: static - using global password");
+            if ($config['auth']['enabled'] && $auth->authenticate()) {
+                $logger->debug("Authentication successful (static global password)");
+                $authenticated = true;
+            } else {
+                $logger->warning("Authentication failed (static global password)");
             }
-        }
-
-        if (!$authenticated && ($authMode === 'static' || $authMode === 'both')) {
-            // Try global one-time password from config.php
-            // Only allowed if device has global-one-time-pass=yes in ns-api
+        } else {
+            // Dynamic mode: Use global-one-time-pass field to determine auth method
             if ($globalOneTimePass === 'yes') {
+                // Device is set for initial provisioning - ONLY accept global one-time password
+                $logger->debug("Global one-time password is enabled for this device");
                 if ($config['auth']['enabled'] && $auth->authenticate()) {
                     $logger->debug("Authentication successful (global one-time password)");
                     $authenticated = true;
                     $usedOneTimePass = true;
+                } else {
+                    $logger->warning("Authentication failed (global one-time password)");
                 }
             } else {
-                $logger->debug("Global one-time password not available for this device");
+                // Device has been provisioned - ONLY accept device-specific credentials
+                if ($provisioningUsername && $provisioningPassword) {
+                    if ($auth->validateCredentials($provisioningUsername, $provisioningPassword)) {
+                        $logger->debug("Authentication successful (device credentials)");
+                        $authenticated = true;
+                    } else {
+                        $logger->warning("Authentication failed (device credentials)");
+                    }
+                } else {
+                    $logger->warning("No provisioning credentials available for device");
+                }
             }
         }
 

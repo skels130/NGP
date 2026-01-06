@@ -136,6 +136,11 @@ LoadModule headers_module modules/mod_headers.so
 Then add to NDP server Apache configuration (e.g., `/etc/apache2/conf-available/ngp.conf`):
 
 ```apache
+# SSL proxy settings (must be outside <Location> block)
+SSLProxyEngine On
+SSLProxyVerify require
+SSLProxyCheckPeerName on
+
 # Proxy configuration for gateway configs
 <Location /gateway>
     ProxyPass https://config.example.com/gateway
@@ -147,11 +152,6 @@ Then add to NDP server Apache configuration (e.g., `/etc/apache2/conf-available/
     # IMPORTANT: Forward original client IP for rate limiting
     # This allows NGP to rate-limit individual devices, not just the proxy
     RequestHeader set X-Forwarded-For "%{REMOTE_ADDR}e"
-
-    # SSL verification
-    SSLProxyEngine On
-    SSLProxyVerify require
-    SSLProxyCheckPeerName on
 </Location>
 ```
 

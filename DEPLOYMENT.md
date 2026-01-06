@@ -118,14 +118,24 @@ On your NetSapiens NDP server, configure it to proxy `/gateway/` requests to you
 
 #### Option A: Apache Proxy
 
-Add to NDP server Apache configuration:
+First, enable the required Apache modules:
 
+**Debian/Ubuntu:**
+```bash
+sudo a2enmod proxy proxy_http headers ssl rewrite
+sudo systemctl restart apache2
+```
+
+**Red Hat/CentOS:** Modules are typically pre-loaded. If not, add to your config:
 ```apache
-# Load required modules
 LoadModule proxy_module modules/mod_proxy.so
 LoadModule proxy_http_module modules/mod_proxy_http.so
 LoadModule headers_module modules/mod_headers.so
+```
 
+Then add to NDP server Apache configuration (e.g., `/etc/apache2/conf-available/ngp.conf`):
+
+```apache
 # Proxy configuration for gateway configs
 <Location /gateway>
     ProxyPass https://config.example.com/gateway
@@ -151,10 +161,8 @@ LoadModule headers_module modules/mod_headers.so
 
 If you prefer to strip the `/gateway/` prefix before proxying:
 
-**Apache:**
+**Apache (requires modules enabled as shown in Option A above):**
 ```apache
-LoadModule headers_module modules/mod_headers.so
-
 <Location /gateway>
     # Forward original client IP for rate limiting
     RequestHeader set X-Forwarded-For "%{REMOTE_ADDR}e"

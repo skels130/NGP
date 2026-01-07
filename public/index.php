@@ -111,15 +111,24 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
 
         $authenticated = false;
         $usedOneTimePass = false;
+        $credentialsProvided = $auth->hasCredentials();
 
+        if (!$credentialsProvided) {
+            // No credentials provided - send challenge
+            $logger->info("No credentials provided for MAC: $macAddress - sending auth challenge");
+            $auth->requireAuth();
+            exit;
+        }
+
+        // Credentials were provided - validate them
         if ($authMode === 'static') {
             // Static mode: Always use global password from config
             $logger->debug("Auth mode: static - using global password");
             if ($config['auth']['enabled'] && $auth->authenticate()) {
-                $logger->debug("Authentication successful (static global password)");
+                $logger->info("Authentication successful for MAC: $macAddress (static global password)");
                 $authenticated = true;
             } else {
-                $logger->warning("Authentication failed (static global password)");
+                $logger->warning("Authentication failed for MAC: $macAddress (invalid static credentials)");
             }
         } else {
             // Dynamic mode: Use global-one-time-pass field to determine auth method
@@ -127,29 +136,28 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
                 // Device is set for initial provisioning - ONLY accept global one-time password
                 $logger->debug("Global one-time password is enabled for this device");
                 if ($config['auth']['enabled'] && $auth->authenticate()) {
-                    $logger->debug("Authentication successful (global one-time password)");
+                    $logger->info("Authentication successful for MAC: $macAddress (global one-time password)");
                     $authenticated = true;
                     $usedOneTimePass = true;
                 } else {
-                    $logger->warning("Authentication failed (global one-time password)");
+                    $logger->warning("Authentication failed for MAC: $macAddress (invalid one-time password)");
                 }
             } else {
                 // Device has been provisioned - ONLY accept device-specific credentials
                 if ($provisioningUsername && $provisioningPassword) {
                     if ($auth->validateCredentials($provisioningUsername, $provisioningPassword)) {
-                        $logger->debug("Authentication successful (device credentials)");
+                        $logger->info("Authentication successful for MAC: $macAddress (device credentials)");
                         $authenticated = true;
                     } else {
-                        $logger->warning("Authentication failed (device credentials)");
+                        $logger->warning("Authentication failed for MAC: $macAddress (invalid device credentials)");
                     }
                 } else {
-                    $logger->warning("No provisioning credentials available for device");
+                    $logger->warning("Authentication failed for MAC: $macAddress (no provisioning credentials configured)");
                 }
             }
         }
 
         if (!$authenticated) {
-            $logger->error("Authentication failed for MAC: $macAddress");
             $rateLimiter->recordFailedAttempt();
             $auth->requireAuth();
             exit;

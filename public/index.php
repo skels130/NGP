@@ -207,10 +207,18 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
             'device_info' => $deviceInfo,
         ];
 
-        // Merge parameter overrides from device-models-overrides-blob as top-level variables
+        // Fetch model defaults from ns-api (lower precedence)
+        // These are default parameters for all devices of this brand/model
+        $modelDefaults = $nsapi->getModelDefaults($brand, $model);
+        if (!empty($modelDefaults)) {
+            $logger->debug("Merging " . count($modelDefaults) . " model defaults into template variables");
+            $variables = array_merge($variables, $modelDefaults);
+        }
+
+        // Merge device-specific parameter overrides (higher precedence - overrides model defaults)
         // This allows templates to use {{P2917}} directly instead of {{phone_info.overrides.P2917}}
         if (!empty($phoneInfo['overrides'])) {
-            $logger->debug("Merging " . count($phoneInfo['overrides']) . " parameter overrides into template variables");
+            $logger->debug("Merging " . count($phoneInfo['overrides']) . " device overrides into template variables");
             $variables = array_merge($variables, $phoneInfo['overrides']);
         }
 

@@ -1031,8 +1031,11 @@
     <!-- Disable SIP NOTIFY Authentication -->
     <!-- Number: 0 - No, 1 - Yes  (Device will not challenge NOTIFY with 401 when set to Yes) -->
     <!-- Mandatory -->
+    {{if P4428}}
+    <P4428>{{P4428}}</P4428>
+    {{else}}	
     <P4428>0</P4428>
-
+    {{endif}}
     <!-- Disable Voice Prompt. 0 - No, 1 - Yes. -->
     <!-- Number: 0,1 -->
     <!-- Mandatory -->
@@ -1218,7 +1221,7 @@
     <!-- Register Expiration (in minutes. default 1 hour, max 45 days) -->
     <!-- Number: 1 to 64800 -->
     <!-- Mandatory -->
-    <P32>60</P32>
+    <P32>2</P32>
 
     <!-- SIP Registration Failure Retry Wait Time (in seconds. Between 1-3600, default is 20) -->
     <!-- Number: 1 to 3600 -->

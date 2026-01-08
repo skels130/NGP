@@ -97,25 +97,6 @@ return [
     ],
 ];
 ```
-
-### Authentication Modes
-
-**Dynamic Mode** (Recommended):
-- Devices authenticate using device-specific provisioning credentials from ns-api
-- Credentials are unique per device and retrieved from `/phones/{mac}` API response
-- Most secure option
-
-**Static Mode**:
-- Devices use the global one-time password from config.php
-- Used for initial device provisioning when `global-one-time-pass=yes` in ns-api
-- After first successful authentication, the one-time password is automatically disabled
-- Device-specific credentials are generated and must be used for subsequent requests
-
-**Both Mode**:
-- Tries dynamic authentication first (device-specific credentials)
-- Falls back to global one-time password if device has `global-one-time-pass=yes`
-- Most flexible option for mixed environments
-
 ### Template Organization
 
 Templates are organized in a directory hierarchy:
@@ -149,16 +130,6 @@ templates/
 - Example: "GXW-4248" → "gxw-4248"
 
 **Adding New Device Support:**
-```bash
-# Create directory for new model
-mkdir -p templates/yealink/t48s
-
-# Copy existing template as starting point
-cp templates/grandstream/gxw-4216/config.xml templates/yealink/t48s/config.xml
-
-# Edit template for the new device
-nano templates/yealink/t48s/config.xml
-```
 
 No code changes needed - just create the directory structure!
 
@@ -289,40 +260,6 @@ Use dynamic variables for:
    - Makes parameters available as top-level template variables
    - Enables device-specific customization without code changes
 
-## Project Structure
-
-```
-NGP/
-├── config/
-│   ├── config.example.php    # Example configuration
-│   └── config.php             # Your configuration (create from example)
-├── logs/
-│   ├── ngp.log                # Application logs
-│   ├── php_errors.log         # PHP error logs
-│   └── ratelimit/             # Rate limiting data
-├── public/
-│   ├── .htaccess              # Apache rewrite rules & security headers
-│   └── index.php              # Application entry point
-├── src/
-│   ├── Auth.php               # HTTP Basic Authentication (global one-time password + dynamic)
-│   ├── Logger.php             # Logging functionality
-│   ├── NsApiClient.php        # ns-api integration
-│   ├── RateLimiter.php        # Rate limiting for authentication
-│   ├── TemplateParser.php     # Template parsing engine
-│   └── TemplateSelector.php   # Brand/model template selection
-├── templates/                 # Device configuration templates
-│   └── grandstream/           # Grandstream device templates
-│       ├── gxw-4216/
-│       ├── gxw-4224/
-│       ├── gxw-4232/
-│       └── gxw-4248/
-├── CLAUDE.md                  # Claude Code documentation
-├── DEPLOYMENT.md              # Production deployment guide
-├── LICENSE                    # GNU GPLv3 license
-├── SECURITY_AUDIT_20251205.md # Security audit report
-└── README.md                  # This file
-```
-
 ## Logging
 
 Logs are written to the path specified in configuration (default: `logs/ngp.log`).
@@ -332,11 +269,6 @@ Log levels:
 - **info**: General information about requests
 - **warning**: Warning messages
 - **error**: Error messages
-
-View logs:
-```bash
-tail -f logs/ngp.log
-```
 
 ## Troubleshooting
 
@@ -367,23 +299,6 @@ For production deployment with NS NDP proxy configuration, see **DEPLOYMENT.md**
 - Security hardening and firewall configuration
 - Production checklist and verification steps
 - Troubleshooting common deployment issues
-
-## Changelog
-
-### v1.1.0 - 2025-12-08
-
-**New Features:**
-- **Dynamic Variables**: Device-specific parameter overrides via `device-models-overrides-blob`
-  - Any parameter from ns-api blob automatically available as template variable
-  - Supports double-quoted, single-quoted, and unquoted values
-  - Perfect for custom logos, display settings, and vendor-specific parameters
-  - No code changes needed - just add parameters to ns-api field
-
-**Documentation:**
-- Updated all documentation with dynamic variables feature
-- Added concise variable reference in `templates/TEMPLATE_VARIABLES.md`
-- Improved template examples with dynamic variable usage
-
 
 ## License
 

@@ -64,6 +64,7 @@ class NsApiClient
             'device' => $response['device'] ?? $response['device_id'] ?? null,
             'brand' => $brand,
             'model' => $model,
+            'brand_and_model' => $brandAndModel,
             'provisioning_username' => $response['device-provisioning-username'] ??
                                       $response['provisioning-username'] ??
                                       $response['provisioning_username'] ?? null,
@@ -218,6 +219,45 @@ class NsApiClient
     }
 
     /**
+     * Get model defaults from ns-api
+     * Retrieves default parameter overrides for a specific device model
+     *
+     * @param string $brand Device brand (e.g., "Grandstream")
+     * @param string $model Device model (e.g., "GXW-4248")
+     * @return array Associative array of parameter => value pairs (empty if not found)
+     */
+    public function getModelDefaults(?string $brand, ?string $model): array
+    {
+        if (empty($brand) || empty($model)) {
+            $this->logger->debug("Cannot fetch model defaults: brand or model is empty");
+            return [];
+        }
+
+        $endpoint = "/phones/models?" . http_build_query([
+            'brand' => $brand,
+            'model' => $model,
+        ]);
+
+        $this->logger->debug("Fetching model defaults for brand=$brand, model=$model");
+        $response = $this->makeRequest('GET', $endpoint);
+
+        if (!$response) {
+            $this->logger->warning("Failed to retrieve model defaults for brand=$brand, model=$model");
+            return [];
+        }
+
+        // Parse device-models-overrides-blob for default parameter values
+        $overridesBlob = $response['device-models-overrides-blob'] ?? null;
+        $defaults = $this->parseOverridesBlob($overridesBlob);
+
+        if (!empty($defaults)) {
+            $this->logger->debug("Retrieved " . count($defaults) . " model defaults for brand=$brand, model=$model");
+        }
+
+        return $defaults;
+    }
+
+    /**
      * Make HTTP request to ns-api
      *
      * @param string $method HTTP method (GET, POST, etc.)
@@ -271,7 +311,7 @@ class NsApiClient
         }
 
         if ($httpCode >= 400) {
-            $this->logger->error("ns-api returned error: HTTP $httpCode");
+            $this->logger->error("ns-api returned error: HTTP $httpCode - Response: $response");
             return null;
         }
 
@@ -294,12 +334,19 @@ class NsApiClient
      * @param string $value New value ('yes' or 'no')
      * @param string|null $username Optional username to set (if null, generates random)
      * @param string|null $password Optional password to set (if null, generates random)
+     * @param string|null $brandAndModel Combined brand and model (e.g., "Grandstream GXW-4216")
+     * @param string|null $domain Device domain (required to maintain domain assignment)
      * @return bool Success or failure
      */
-    public function updateGlobalOneTimePass(string $mac, string $value, ?string $username = null, ?string $password = null): bool
+    public function updateGlobalOneTimePass(string $mac, string $value, ?string $username = null, ?string $password = null, ?string $brandAndModel = null, ?string $domain = null): bool
     {
-        $endpoint = "/phones/" . strtoupper($mac);
-        $data = ['global-one-time-pass' => $value];
+        $endpoint = "/phones";
+        $data = [
+            'mac' => strtoupper($mac),
+            'model' => $brandAndModel,
+            'domain' => $domain,
+            'global-one-time-pass' => $value,
+        ];
 
         // When disabling one-time pass, use provided credentials or generate random ones
         if ($value === 'no') {
@@ -340,9 +387,11 @@ class NsApiClient
      * @param string $mac MAC address (12 hex characters)
      * @param string|null $existingUsername Existing username from phone info
      * @param string|null $existingPassword Existing password from phone info
+     * @param string|null $brandAndModel Combined brand and model (e.g., "Grandstream GXW-4216")
+     * @param string|null $domain Device domain (required to maintain domain assignment)
      * @return array Array with 'username' and 'password' keys (existing or newly generated)
      */
-    public function ensureProvisioningCredentials(string $mac, ?string $existingUsername, ?string $existingPassword): array
+    public function ensureProvisioningCredentials(string $mac, ?string $existingUsername, ?string $existingPassword, ?string $brandAndModel = null, ?string $domain = null): array
     {
         // If credentials already exist, return them
         if ($existingUsername && $existingPassword) {
@@ -360,8 +409,11 @@ class NsApiClient
         $this->logger->info("Generating new provisioning credentials for $mac");
 
         // Update ns-api with new credentials
-        $endpoint = "/phones/" . strtoupper($mac);
+        $endpoint = "/phones";
         $data = [
+            'mac' => strtoupper($mac),
+            'model' => $brandAndModel,
+            'domain' => $domain,
             'device-provisioning-username' => $username,
             'device-provisioning-password' => $password,
         ];

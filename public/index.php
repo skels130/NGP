@@ -78,6 +78,7 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
         $device = $phoneInfo['device'];
         $brand = $phoneInfo['brand'];
         $model = $phoneInfo['model'];
+        $brandAndModel = $phoneInfo['brand_and_model'];
         $provisioningUsername = $phoneInfo['provisioning_username'];
         $provisioningPassword = $phoneInfo['provisioning_password'];
         $globalOneTimePass = $phoneInfo['global_one_time_pass'] ?? 'no';
@@ -94,7 +95,9 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
         $provisioningCreds = $nsapi->ensureProvisioningCredentials(
             $macAddress,
             $provisioningUsername,
-            $provisioningPassword
+            $provisioningPassword,
+            $brandAndModel,
+            $domain
         );
         $provisioningUsername = $provisioningCreds['username'];
         $provisioningPassword = $provisioningCreds['password'];
@@ -111,15 +114,24 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
 
         $authenticated = false;
         $usedOneTimePass = false;
+        $credentialsProvided = $auth->hasCredentials();
 
+        if (!$credentialsProvided) {
+            // No credentials provided - send challenge
+            $logger->info("No credentials provided for MAC: $macAddress - sending auth challenge");
+            $auth->requireAuth();
+            exit;
+        }
+
+        // Credentials were provided - validate them
         if ($authMode === 'static') {
             // Static mode: Always use global password from config
             $logger->debug("Auth mode: static - using global password");
             if ($config['auth']['enabled'] && $auth->authenticate()) {
-                $logger->debug("Authentication successful (static global password)");
+                $logger->info("Authentication successful for MAC: $macAddress (static global password)");
                 $authenticated = true;
             } else {
-                $logger->warning("Authentication failed (static global password)");
+                $logger->warning("Authentication failed for MAC: $macAddress (invalid static credentials)");
             }
         } else {
             // Dynamic mode: Use global-one-time-pass field to determine auth method
@@ -127,29 +139,28 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
                 // Device is set for initial provisioning - ONLY accept global one-time password
                 $logger->debug("Global one-time password is enabled for this device");
                 if ($config['auth']['enabled'] && $auth->authenticate()) {
-                    $logger->debug("Authentication successful (global one-time password)");
+                    $logger->info("Authentication successful for MAC: $macAddress (global one-time password)");
                     $authenticated = true;
                     $usedOneTimePass = true;
                 } else {
-                    $logger->warning("Authentication failed (global one-time password)");
+                    $logger->warning("Authentication failed for MAC: $macAddress (invalid one-time password)");
                 }
             } else {
                 // Device has been provisioned - ONLY accept device-specific credentials
                 if ($provisioningUsername && $provisioningPassword) {
                     if ($auth->validateCredentials($provisioningUsername, $provisioningPassword)) {
-                        $logger->debug("Authentication successful (device credentials)");
+                        $logger->info("Authentication successful for MAC: $macAddress (device credentials)");
                         $authenticated = true;
                     } else {
-                        $logger->warning("Authentication failed (device credentials)");
+                        $logger->warning("Authentication failed for MAC: $macAddress (invalid device credentials)");
                     }
                 } else {
-                    $logger->warning("No provisioning credentials available for device");
+                    $logger->warning("Authentication failed for MAC: $macAddress (no provisioning credentials configured)");
                 }
             }
         }
 
         if (!$authenticated) {
-            $logger->error("Authentication failed for MAC: $macAddress");
             $rateLimiter->recordFailedAttempt();
             $auth->requireAuth();
             exit;
@@ -207,10 +218,18 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
             'device_info' => $deviceInfo,
         ];
 
-        // Merge parameter overrides from device-models-overrides-blob as top-level variables
+        // Fetch model defaults from ns-api (lower precedence)
+        // These are default parameters for all devices of this brand/model
+        $modelDefaults = $nsapi->getModelDefaults($brand, $model);
+        if (!empty($modelDefaults)) {
+            $logger->debug("Merging " . count($modelDefaults) . " model defaults into template variables");
+            $variables = array_merge($variables, $modelDefaults);
+        }
+
+        // Merge device-specific parameter overrides (higher precedence - overrides model defaults)
         // This allows templates to use {{P2917}} directly instead of {{phone_info.overrides.P2917}}
         if (!empty($phoneInfo['overrides'])) {
-            $logger->debug("Merging " . count($phoneInfo['overrides']) . " parameter overrides into template variables");
+            $logger->debug("Merging " . count($phoneInfo['overrides']) . " device overrides into template variables");
             $variables = array_merge($variables, $phoneInfo['overrides']);
         }
 
@@ -229,7 +248,7 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
         // Pass the credentials that were already generated and sent in the config to avoid mismatch
         if ($usedOneTimePass) {
             $logger->info("Disabling global one-time password and setting device-specific credentials for MAC: $macAddress");
-            $nsapi->updateGlobalOneTimePass($macAddress, 'no', $provisioningUsername, $provisioningPassword);
+            $nsapi->updateGlobalOneTimePass($macAddress, 'no', $provisioningUsername, $provisioningPassword, $brandAndModel, $domain);
         }
 
     } catch (Exception $e) {

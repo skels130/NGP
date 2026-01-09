@@ -77,7 +77,7 @@ See **DEPLOYMENT.md** for complete proxy setup instructions.
    - Registration server name (device-provisioning-registration-core-server)
    - SIP URIs for all lines (device1-device48)
    - Line enable status (line1_enable-line48_enable)
-   - **device-models-overrides-blob** (dynamic parameter overrides)
+   - **device-models-overrides-blob** (device-specific parameter overrides)
 5. **Server Info Retrieval**: Query ns-api `/phones/servers/{server}` to get:
    - Outbound proxy FQDN (device-provisioning-core-server-postfix-fqdn)
    - TCP port (device-provisioning-core-server-tcp-port)
@@ -89,10 +89,15 @@ See **DEPLOYMENT.md** for complete proxy setup instructions.
 7. **Per-Line Credential Retrieval**: For each configured line, query ns-api `/domains/{domain}/users/{extension}/devices` to get that line's SIP password
    - Each line gets its own unique password
    - Up to 48 API calls for fully configured device
-8. **Parse Dynamic Variables**: Extract parameter=value pairs from device-models-overrides-blob
+8. **Model Defaults Retrieval**: Query ns-api `/phones/models?brand={brand}&model={model}` to get:
+   - **device-models-overrides-blob** (model-level default parameters)
+   - These defaults apply to all devices of this brand/model
+9. **Parse and Merge Dynamic Variables**: Extract parameter=value pairs with hierarchical precedence:
+   - **Model defaults** (from `/phones/models`) - lower precedence
+   - **Device overrides** (from `/phones/{mac}`) - higher precedence (wins if both set)
    - Supports double-quoted, single-quoted, and unquoted values
    - Parameters become top-level template variables (e.g., `{{P2917}}`)
-9. **Template Selection**: Select appropriate template based on brand and model
+10. **Template Selection**: Select appropriate template based on brand and model
    - Check exact match: `brand:model`
    - Check pattern match: `brand:model*` (wildcard support)
    - Check brand-only match: `brand`
@@ -122,22 +127,32 @@ The template parser supports:
 - Basic expressions for parameter calculation
 
 ### Dynamic Variables (Parameter Overrides)
-NGP supports device-specific parameter overrides via the `device-models-overrides-blob` field:
-- **Source**: ns-api `/phones/{mac}` response field
+NGP supports hierarchical parameter overrides via the `device-models-overrides-blob` field:
+
+**Variable Hierarchy (highest to lowest precedence):**
+1. **Device Overrides** (from `/phones/{mac}`) - device-specific settings, highest priority
+2. **Model Defaults** (from `/phones/models?brand=X&model=Y`) - default settings for all devices of this model
+3. **Standard Variables** (mac, domain, device_info, etc.)
+
+**Configuration:**
 - **Format**: Space-separated `PARAMETER="value"` pairs
 - **Example**: `P2917="https://example.com/logos/logo_480x272.jpg" P2916="1"`
 - **Parsing**: `NsApiClient::parseOverridesBlob()` extracts parameters
 - **Template Access**: Parameters available as `{{P2917}}`, `{{P2916}}`, etc.
-- **Use Cases**: Custom logos, backgrounds, display settings, time zones, vendor-specific parameters
 - **Quote Support**: Double quotes, single quotes, or unquoted values
-- **Priority**: Dynamic variables override standard variables if names conflict
+
+**Use Cases:**
+- **Model Defaults**: Set common parameters for all devices of a model (e.g., registration expiration, codec settings)
+- **Device Overrides**: Customize individual devices (e.g., custom logos, specific settings)
+- When both are set for the same parameter, device overrides win
 
 ### ns-api Integration
 - **MCP Tools Available**: Use `mcp__ns-api__*` functions for API calls (in Claude Code context)
 - **Production**: Uses direct HTTP/curl requests via NsApiClient class
 - **Authentication**: API key in Authorization header
 - **Required Endpoints**:
-  - `GET /phones/{mac}` - Returns domain, user, brand, model, provisioning credentials, registration server, and line configuration (device1-device48, line1_enable-line48_enable)
+  - `GET /phones/{mac}` - Returns domain, user, brand, model, provisioning credentials, registration server, line configuration, and device-specific overrides
+  - `GET /phones/models?brand={brand}&model={model}` - Returns model definition including default parameters (device-models-overrides-blob)
   - `GET /phones/servers/{server}` - Returns server configuration (FQDN, TCP/TLS ports) for outbound proxy setup
   - `GET /domains/{domain}/users/{extension}/devices` - Returns SIP password for specific extension (called once per configured line)
 
@@ -244,11 +259,12 @@ cp existing_template.xml templates/yealink/t46s/config.xml
     - Used when device has `global-one-time-pass=yes` in ns-api
     - Automatically disabled after first use
 - **Dynamic Variables** (v1.1.0+):
-  - `device-models-overrides-blob` field parsed automatically
+  - `device-models-overrides-blob` field parsed automatically from both model and device levels
   - Parameters become top-level template variables
   - Use `{{P2917}}` directly in templates
-  - Perfect for device-specific customization (logos, settings, etc.)
+  - **Hierarchy**: Model defaults → Device overrides (device wins when both set)
   - Parsed by `NsApiClient::parseOverridesBlob()` method
+  - Model defaults fetched by `NsApiClient::getModelDefaults()` method
   - Merged into template variables in `public/index.php`
 - **Template Organization**:
   - Each model has its own directory under `templates/{brand}/{model}/`

@@ -78,6 +78,7 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
         $device = $phoneInfo['device'];
         $brand = $phoneInfo['brand'];
         $model = $phoneInfo['model'];
+        $brandAndModel = $phoneInfo['brand_and_model'];
         $provisioningUsername = $phoneInfo['provisioning_username'];
         $provisioningPassword = $phoneInfo['provisioning_password'];
         $globalOneTimePass = $phoneInfo['global_one_time_pass'] ?? 'no';
@@ -94,7 +95,9 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
         $provisioningCreds = $nsapi->ensureProvisioningCredentials(
             $macAddress,
             $provisioningUsername,
-            $provisioningPassword
+            $provisioningPassword,
+            $brandAndModel,
+            $domain
         );
         $provisioningUsername = $provisioningCreds['username'];
         $provisioningPassword = $provisioningCreds['password'];
@@ -245,7 +248,7 @@ if (preg_match('/^\/(?:gateway\/)?(?:cfg\/|cfg)?([A-Fa-f0-9]{12})\.(cfg|xml)$/',
         // Pass the credentials that were already generated and sent in the config to avoid mismatch
         if ($usedOneTimePass) {
             $logger->info("Disabling global one-time password and setting device-specific credentials for MAC: $macAddress");
-            $nsapi->updateGlobalOneTimePass($macAddress, 'no', $provisioningUsername, $provisioningPassword);
+            $nsapi->updateGlobalOneTimePass($macAddress, 'no', $provisioningUsername, $provisioningPassword, $brandAndModel, $domain);
         }
 
     } catch (Exception $e) {

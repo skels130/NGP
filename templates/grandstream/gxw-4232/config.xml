@@ -4,11 +4,12 @@
 <mac>{{mac}}</mac>
   <config version="1">
 
-    <!-- Configuration template for GXW42XX v2 firmware version 1.0.15.2 -->
+    <!-- Configuration template for GXW42XX v2 firmware version 1.0.31.2 -->
+    <!-- Generated from manufacturer template with provisioning variables -->
 
     <!-- Maintenance-Network setting -->
 
-    <!-- IP Address Mode. 0 - DHCP, 1 - PPPoE, 2 - Static IP -->
+    <!-- IP Address Mode. 0 - DHCP, 1 - Static IP, 2 - PPPoE. Default is 0. -->
     <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
     <!-- Reboot required -->
@@ -277,7 +278,17 @@
     <P22112>0</P22112>
     {{endif}}
 
-    <!-- Use STUN to detect network connectivity. 0 - No, 1 - Yes. -->
+
+    <!-- Maximum Transmission Unit (MTU). Default is 1500. -->
+    <!-- Number: 576 – 1500 -->
+    <!-- Mandatory -->
+    {{if P244}}
+    <P244>{{P244}}</P244>
+    {{else}}
+    <P244>1500</P244>
+    {{endif}}
+
+    <!-- Use STUN. 0 - No, 1 - Yes. -->
     <!-- Number: 0,1 -->
     <!-- Mandatory -->
     {{if P474}}
@@ -312,7 +323,7 @@
     <P84>20</P84>
     {{endif}}
 
-    <!-- Black List for WAN Side Port. -->
+    <!-- Block List for WAN Side Port. -->
     {{if P28115}}
     <P28115>{{P28115}}</P28115>
     {{else}}
@@ -372,11 +383,15 @@
 
     <!-- HTTP/HTTPS/FTP/FTPS User Name -->
     <!-- String Max Length: 40; between ascii values 33 and 126 -->
+    <!-- HTTP/HTTPS/FTP/FTPS User Name -->
+    <!-- String Max Length: 40; between ascii values 33 and 126 -->
     <P1360>{{device_info.provisioning_username}}</P1360>
 
     <!-- HTTP/HTTPS/FTP/FTPS Password -->
     <!-- String Max Length: 40; between ascii values 33 and 126 -->
     <!-- Mandatory -->
+    <!-- HTTP/HTTPS/FTP/FTPS Password -->
+    <!-- String Max Length: 40; between ascii values 33 and 126 -->
     <P1361>{{device_info.provisioning_password}}</P1361>
 
     <!-- Always send HTTP Basic Authentication Information. 0 - No, 1- Yes. -->
@@ -386,6 +401,15 @@
     <P20713>{{P20713}}</P20713>
     {{else}}
     <P20713>0</P20713>
+    {{endif}}
+
+    <!-- Validate Hostname in Certificate. 0 – No, 1 – Yes.  Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    {{if P22030}}
+    <P22030>{{P22030}}</P22030>
+    {{else}}
+    <P22030>0</P22030>
     {{endif}}
 
     <!-- Upgrade via. 0 - TFTP, 1 - HTTP, 2 - HTTPS, 3 - FTP, 4 - FTPS. -->
@@ -405,6 +429,8 @@
     <P192>fm.grandstream.com/gs</P192>
     {{endif}}
 
+    <!-- Config Server Path -->
+    <!-- String: serveraddress -->
     <!-- Config Server Path -->
     <!-- String: serveraddress -->
     <P237>{{device_info.provisioning_server}}/gateway</P237>
@@ -650,7 +676,7 @@
     <P1683>15</P1683>
     {{endif}}
 
-    <!-- Disable User Level Web Access. 0 - No, 1 - Yes -->
+    <!-- Disable User Level Web Access. 0 - No, 1 - Yes. Default is 1. -->
     <!-- Number: 0, 1 -->
     <!-- Mandatory -->
     {{if P28158}}
@@ -659,7 +685,7 @@
     <P28158>0</P28158>
     {{endif}}
 
-    <!-- Disable Viewer Level Web Access. 0 - No, 1 - Yes -->
+    <!-- Disable Viewer Level Web Access. 0 - No, 1 - Yes. Default is 1. -->
     <!-- Number: 0, 1 -->
     <!-- Mandatory -->
     {{if P28159}}
@@ -683,6 +709,55 @@
     <!-- regex: "^(?:(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,30})$" -->
     <!-- Mandatory -->
     <!-- P2=admin -->
+
+    <!-- Strict Password Rules -->
+    <!-- Enable strict password rules. 0 – No, 1 – Yes. 0 – No. Default is 0. -->
+    {{if P28788}}
+    <P28788>{{P28788}}</P28788>
+    {{else}}
+    <P28788>0</P28788>
+    {{endif}}
+
+    <!-- Minimum password length.Default is 8. -->
+    <!-- Number: 4 - 30. -->
+    {{if P28790}}
+    <P28790>{{P28790}}</P28790>
+    {{else}}
+    <P28790>8</P28790>
+    {{endif}}
+
+    <!-- Required number of character classes. Default is 3. -->
+    <!-- Number: 0 - 3. -->
+    <!-- Mandatory -->
+    {{if P28791}}
+    <P28791>{{P28791}}</P28791>
+    {{else}}
+    <P28791>3</P28791>
+    {{endif}}
+
+    <!-- Allowed Character classes. Default is 7. -->
+    <!-- Number: -->
+    <!-- 7 – Lower case, upper case, numbers -->
+    <!-- 3 – Lower case, upper case -->
+    <!-- 5 – Lower case, numbers -->
+    <!-- 6 – Upper case, numbers -->
+    <!-- 11 – Lower case, upper case, special characters -->
+    <!-- 13 – Lower case, numbers, special characters -->
+    <!-- 14 – Upper case, numbers, special characters -->
+    <!-- 9 – Lower case, special characters -->
+    <!-- 10 – Upper case, special characters -->
+    <!-- 12 – Numbers, special characters -->
+    <!-- 1 –  Lower case -->
+    <!-- 2 – Upper case -->
+    <!-- 4 – Numbers -->
+    <!-- 8 – Special characters -->
+    <!-- 15 - Lower case, upper case, numbers, special characters -->
+    <!-- Mandatory -->
+    {{if P28792}}
+    <P28792>{{P28792}}</P28792>
+    {{else}}
+    <P28792>7</P28792>
+    {{endif}}
 
     <!-- White list for WAN side -->
     <!-- String: ip address -->
@@ -1000,6 +1075,15 @@
     <P28114>1</P28114>
     {{endif}}
 
+    <!-- RADIUS Auth Protocol. 0 – PAP, 1 – CHAP, 2 – MsCHAPv1, 3 – MsCHAPv2. Default is 0. -->
+    <!-- Number: 0,1,2,3 -->
+    <!-- Mandatory -->
+    {{if P28803}}
+    <P28803>{{P28803}}</P28803>
+    {{else}}
+    <P28803>0</P28803>
+    {{endif}}
+
 
     <!-- RADIUS Auth Server Address -->
     <!-- String -->
@@ -1230,7 +1314,7 @@
 
     <!-- Maintenance-VPN -->
 
-    <!-- OpenVPNEnable. 0 - No, 1 - Yes -->
+    <!-- OpenVPN® Enable. 0 - No, 1 - Yes -->
     <!-- Number: 0, 1 -->
     <!-- Mandatory -->
     {{if P7050}}
@@ -1239,7 +1323,7 @@
     <P7050>0</P7050>
     {{endif}}
 
-    <!-- OpenVPN Server Address. -->
+    <!-- OpenVPN® Server Address. -->
     <!-- String -->
     {{if P7051}}
     <P7051>{{P7051}}</P7051>
@@ -1247,12 +1331,39 @@
     <P7051></P7051>
     {{endif}}
 
-    <!-- OpenVPN Port. -->
+    <!-- OpenVPN® Port. Default is 1194. -->
     <!-- Number: 1 to 65535 -->
     {{if P7052}}
     <P7052>{{P7052}}</P7052>
     {{else}}
     <P7052>1194</P7052>
+    {{endif}}
+
+    <!-- OpenVPN® Server Secondary Address. -->
+    <!-- String: MaxLength: 253 characters -->
+    <!-- Mandatory -->
+    {{if P22597}}
+    <P22597>{{P22597}}</P22597>
+    {{else}}
+    <P22597></P22597>
+    {{endif}}
+
+    <!-- OpenVPN® Secondary Port. Default is 1194. -->
+    <!-- Number: 1 to 65535 -->
+    <!-- Mandatory -->
+    {{if P22598}}
+    <P22598>{{P22598}}</P22598>
+    {{else}}
+    <P22598>1194</P22598>
+    {{endif}}
+
+    <!-- Randomly Select Server. 0 – No, 1 – Yes Default is 0. -->
+    <!-- Number: 0,1 -->
+    <!-- Mandatory -->
+    {{if P22599}}
+    <P22599>{{P22599}}</P22599>
+    {{else}}
+    <P22599>0</P22599>
     {{endif}}
 
     <!-- Interface type. tap - TAP, tun - TUN -->
@@ -1264,7 +1375,7 @@
     <P20714>tun</P20714>
     {{endif}}
 
-    <!-- OpenVPN Transport. udp - UDP, tcp - TCP -->
+    <!-- OpenVPN® Transport. udp - UDP, tcp - TCP -->
     <!-- String -->
     <!-- Mandatory -->
     {{if P2912}}
@@ -1282,7 +1393,7 @@
     <P20716>1</P20716>
     {{endif}}
 
-    <!-- OpenVPN Encryption. -->
+    <!-- OpenVPN® Encryption. -->
     <!-- BF-CBC - BF-CBC 128 bit default key (variable) Default; DES-CBC - DES-CBC 64 bit default key (fixed); RC2-CBC - RC2-CBC 128 bit default key (variable) -->
     <!-- DES-EDE-CBC - DES-EDE-CBC 128 bit default key (fixed); DES-EDE3-CBC - DES-EDE3-CBC 192 bit default key (fixed); DESX-CBC - DESX-CBC 192 bit default key (fixed) -->
     <!-- RC2-40-CBC - RC2-40-CBC 40 bit default key (variable); CAST5-CBC - CAST5-CBC 128 bit default key (variable); RC2-64-CBC - RC2-64-CBC 64 bit default key (variable) -->
@@ -1295,7 +1406,7 @@
     <P20717>BF-CBC</P20717>
     {{endif}}
 
-    <!-- OpenVPN Digest. -->
+    <!-- OpenVPN® Digest. -->
     <!-- SHA1 - SHA1 Default; MD5 - MD5; RSA-MD5 - RSA-MD5; RSA-SHA1 - RSA-SHA1; DSA-SHA1-old - DSA-SHA1-old; DSA-SHA1 - DSA-SHA1; RSA-SHA1-2 - RSA-SHA1-2 -->
     <!-- DSA – DSA; RIPEMD160 - RIPEMD160; RSA-RIPEMD160 - RSA-RIPEMD160; MD4 - MD4; RSA-MD4 - RSA-MD4; ecdsa-with-SHA1 - ecdsa-with-SHA1; RSA-SHA256 - RSA-SHA256 -->
     <!-- RSA-SHA384 - RSA-SHA384; RSA-SHA512 - RSA-SHA512; RSA-SHA224 - RSA-SHA224; SHA256 - SHA256; SHA384 - SHA384; SHA512 - SHA512; SHA224 - SHA244; Whirlpool - whirlpool -->
@@ -1307,7 +1418,23 @@
     <P20725>SHA1</P20725>
     {{endif}}
 
-    <!-- OpenVPN CA. -->
+    <!-- OpenVPN® Username. -->
+    <!-- String:Maxlength 32 Characters -->
+    {{if P8394}}
+    <P8394>{{P8394}}</P8394>
+    {{else}}
+    <P8394></P8394>
+    {{endif}}
+
+    <!-- OpenVPN® Password. -->
+    <!-- String:Maxlength 32 Characters -->
+    {{if P8395}}
+    <P8395>{{P8395}}</P8395>
+    {{else}}
+    <P8395></P8395>
+    {{endif}}
+
+    <!-- OpenVPN® CA. -->
     <!-- String Max Length: 8192 -->
     {{if P9902}}
     <P9902>{{P9902}}</P9902>
@@ -1315,7 +1442,7 @@
     <P9902></P9902>
     {{endif}}
 
-    <!-- OpenVPN Certificate. -->
+    <!-- OpenVPN® Certificate. -->
     <!-- String Max Length: 8192 -->
     {{if P9903}}
     <P9903>{{P9903}}</P9903>
@@ -1323,7 +1450,7 @@
     <P9903></P9903>
     {{endif}}
 
-    <!-- OpenVPN Client Key. -->
+    <!-- OpenVPN® Client Key. -->
     <!-- String Max Length: 8192 -->
     {{if P9904}}
     <P9904>{{P9904}}</P9904>
@@ -1331,13 +1458,39 @@
     <P9904></P9904>
     {{endif}}
 
-    <!-- OpenVPN Client Key Passowrd. -->
+    <!-- OpenVPN® Client Key Passowrd. -->
     <!-- String Max Length:64 -->
     {{if P20715}}
     <P20715>{{P20715}}</P20715>
     {{else}}
     <P20715></P20715>
     {{endif}}
+
+    <!-- OpenVPN® TLS Key. -->
+    <!-- String Max Length: 8192 -->
+    {{if P22371}}
+    <P22371>{{P22371}}</P22371>
+    {{else}}
+    <P22371></P22371>
+    {{endif}}
+
+    <!-- OpenVPN® TLS Key Type. 0 – No, 1 – TLS-Auth, 2 – TLS-Crypt. Default is 0. -->
+    <!-- Number: 0,1,2 -->
+    <!-- Mandatory -->
+    {{if P22457}}
+    <P22457>{{P22457}}</P22457>
+    {{else}}
+    <P22457>0</P22457>
+    {{endif}}
+
+    <!-- OpenVPN® Additional Options -->
+    <!-- String Max Length: 2048 -->
+    {{if P8460}}
+    <P8460>{{P8460}}</P8460>
+    {{else}}
+    <P8460>0</P8460>
+    {{endif}}
+
     <!-- Maintenance-Security Settings -->
     <!-- Maintenance-Security Settings-Security -->
     <!-- SIP TLS Settings -->
@@ -1372,6 +1525,15 @@
     <P8472>{{P8472}}</P8472>
     {{else}}
     <P8472></P8472>
+    {{endif}}
+
+    <!-- Keep Security Setting After Reset. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0,1 -->
+    <!-- Mandatory -->
+    {{if P28849}}
+    <P28849>{{P28849}}</P28849>
+    {{else}}
+    <P28849>0</P28849>
     {{endif}}
 
     <!-- Validate Server Certificates. 0 - No, 1 - Yes -->
@@ -1461,6 +1623,14 @@
     <P30>{{P30}}</P30>
     {{else}}
     <P30>pool.ntp.org</P30>
+    {{endif}}
+
+    <!-- Secondary NTP Server -->
+    <!-- String: Serveraddress -->
+    {{if P8333}}
+    <P8333>{{P8333}}</P8333>
+    {{else}}
+    <P8333>0</P8333>
     {{endif}}
 
     <!-- NTP Update Interval in minutes(5-1440)(Default is set to 60 minutes) -->
@@ -1721,6 +1891,14 @@
     <P28133>f1=425@-15,c=600/600;</P28133>
     {{endif}}
 
+    <!-- Conference Notification Tone -->
+    <!-- String: Max Length 256 Characters. -->
+    {{if P7077}}
+    <P7077>{{P7077}}</P7077>
+    {{else}}
+    <P7077></P7077>
+    {{endif}}
+
     <!-- Special Proceed Indication Tone. -->
     <!-- String Max Length: 256 -->
     {{if P28196}}
@@ -1735,6 +1913,14 @@
     <P28211>{{P28211}}</P28211>
     {{else}}
     <P28211>f1=350@-13, f2=450@-13, c=750/750;</P28211>
+    {{endif}}
+
+    <!-- Remote On Hold Tone -->
+    <!-- String: Max Length 256 Characters. -->
+    {{if P28858}}
+    <P28858>{{P28858}}</P28858>
+    {{else}}
+    <P28858></P28858>
     {{endif}}
 
     <!-- Advanced Settings-FXO Failover -->
@@ -1781,9 +1967,10 @@
     <!-- Mandatory -->
     {{if P4428}}
     <P4428>{{P4428}}</P4428>
-    {{else}}	
+    {{else}}
     <P4428>0</P4428>
     {{endif}}
+
     <!-- Disable Voice Prompt. 0 - No, 1 - Yes. -->
     <!-- Number: 0,1 -->
     <!-- Mandatory -->
@@ -1817,6 +2004,14 @@
     <P4042>{{P4042}}</P4042>
     {{else}}
     <P4042></P4042>
+    {{endif}}
+
+    <!-- Port Lock Code. Default is 21. -->
+    <!-- String: Digital. Min Length 0 character, Max Length 2 characters -->
+    {{if P24848}}
+    <P24848>{{P24848}}</P24848>
+    {{else}}
+    <P24848>21</P24848>
     {{endif}}
 
     <!-- Play Busy Tone When Account is unregistered. 0 - No, 1 - Yes. -->
@@ -1883,6 +2078,1595 @@
     <P4049>0</P4049>
     {{endif}}
 
+    <!-- Advanced Settings-Static DNS -->
+    <!-- A Record Settings -->
+    <!-- A Record Settings: Name -->
+    <!-- String: Max length 512 characters -->
+    {{if P93014}}
+    <P93014>{{P93014}}</P93014>
+    {{else}}
+    <P93014></P93014>
+    {{endif}}
+    {{if P93034}}
+    <P93034>{{P93034}}</P93034>
+    {{else}}
+    <P93034></P93034>
+    {{endif}}
+    {{if P93054}}
+    <P93054>{{P93054}}</P93054>
+    {{else}}
+    <P93054></P93054>
+    {{endif}}
+    {{if P93074}}
+    <P93074>{{P93074}}</P93074>
+    {{else}}
+    <P93074></P93074>
+    {{endif}}
+    {{if P93094}}
+    <P93094>{{P93094}}</P93094>
+    {{else}}
+    <P93094></P93094>
+    {{endif}}
+    {{if P93114}}
+    <P93114>{{P93114}}</P93114>
+    {{else}}
+    <P93114></P93114>
+    {{endif}}
+    {{if P93134}}
+    <P93134>{{P93134}}</P93134>
+    {{else}}
+    <P93134></P93134>
+    {{endif}}
+    {{if P93154}}
+    <P93154>{{P93154}}</P93154>
+    {{else}}
+    <P93154></P93154>
+    {{endif}}
+    {{if P93174}}
+    <P93174>{{P93174}}</P93174>
+    {{else}}
+    <P93174></P93174>
+    {{endif}}
+    {{if P93194}}
+    <P93194>{{P93194}}</P93194>
+    {{else}}
+    <P93194></P93194>
+    {{endif}}
+    {{if P93214}}
+    <P93214>{{P93214}}</P93214>
+    {{else}}
+    <P93214></P93214>
+    {{endif}}
+    {{if P93234}}
+    <P93234>{{P93234}}</P93234>
+    {{else}}
+    <P93234></P93234>
+    {{endif}}
+    {{if P93254}}
+    <P93254>{{P93254}}</P93254>
+    {{else}}
+    <P93254></P93254>
+    {{endif}}
+    {{if P93274}}
+    <P93274>{{P93274}}</P93274>
+    {{else}}
+    <P93274></P93274>
+    {{endif}}
+    {{if P93294}}
+    <P93294>{{P93294}}</P93294>
+    {{else}}
+    <P93294></P93294>
+    {{endif}}
+    {{if P93314}}
+    <P93314>{{P93314}}</P93314>
+    {{else}}
+    <P93314></P93314>
+    {{endif}}
+    {{if P93334}}
+    <P93334>{{P93334}}</P93334>
+    {{else}}
+    <P93334></P93334>
+    {{endif}}
+    {{if P93354}}
+    <P93354>{{P93354}}</P93354>
+    {{else}}
+    <P93354></P93354>
+    {{endif}}
+
+    <!-- A Record Settings: TTL. Default is 300. -->
+    <!-- Number: 300 to 65535 -->
+    <!-- Mandatory -->
+    {{if P93015}}
+    <P93015>{{P93015}}</P93015>
+    {{else}}
+    <P93015>300</P93015>
+    {{endif}}
+    {{if P93035}}
+    <P93035>{{P93035}}</P93035>
+    {{else}}
+    <P93035>300</P93035>
+    {{endif}}
+    {{if P93055}}
+    <P93055>{{P93055}}</P93055>
+    {{else}}
+    <P93055>300</P93055>
+    {{endif}}
+    {{if P93075}}
+    <P93075>{{P93075}}</P93075>
+    {{else}}
+    <P93075>300</P93075>
+    {{endif}}
+    {{if P93095}}
+    <P93095>{{P93095}}</P93095>
+    {{else}}
+    <P93095>300</P93095>
+    {{endif}}
+    {{if P93115}}
+    <P93115>{{P93115}}</P93115>
+    {{else}}
+    <P93115>300</P93115>
+    {{endif}}
+    {{if P93135}}
+    <P93135>{{P93135}}</P93135>
+    {{else}}
+    <P93135>300</P93135>
+    {{endif}}
+    {{if P93155}}
+    <P93155>{{P93155}}</P93155>
+    {{else}}
+    <P93155>300</P93155>
+    {{endif}}
+    {{if P93175}}
+    <P93175>{{P93175}}</P93175>
+    {{else}}
+    <P93175>300</P93175>
+    {{endif}}
+    {{if P93195}}
+    <P93195>{{P93195}}</P93195>
+    {{else}}
+    <P93195>300</P93195>
+    {{endif}}
+    {{if P93215}}
+    <P93215>{{P93215}}</P93215>
+    {{else}}
+    <P93215>300</P93215>
+    {{endif}}
+    {{if P93235}}
+    <P93235>{{P93235}}</P93235>
+    {{else}}
+    <P93235>300</P93235>
+    {{endif}}
+    {{if P93255}}
+    <P93255>{{P93255}}</P93255>
+    {{else}}
+    <P93255>300</P93255>
+    {{endif}}
+    {{if P93275}}
+    <P93275>{{P93275}}</P93275>
+    {{else}}
+    <P93275>300</P93275>
+    {{endif}}
+    {{if P93295}}
+    <P93295>{{P93295}}</P93295>
+    {{else}}
+    <P93295>300</P93295>
+    {{endif}}
+    {{if P93315}}
+    <P93315>{{P93315}}</P93315>
+    {{else}}
+    <P93315>300</P93315>
+    {{endif}}
+    {{if P93335}}
+    <P93335>{{P93335}}</P93335>
+    {{else}}
+    <P93335>300</P93335>
+    {{endif}}
+    {{if P93355}}
+    <P93355>{{P93355}}</P93355>
+    {{else}}
+    <P93355>300</P93355>
+    {{endif}}
+
+    <!-- A Record Settings: Address -->
+    <!-- String: -->
+    {{if P93016}}
+    <P93016>{{P93016}}</P93016>
+    {{else}}
+    <P93016></P93016>
+    {{endif}}
+    {{if P93036}}
+    <P93036>{{P93036}}</P93036>
+    {{else}}
+    <P93036></P93036>
+    {{endif}}
+    {{if P93056}}
+    <P93056>{{P93056}}</P93056>
+    {{else}}
+    <P93056></P93056>
+    {{endif}}
+    {{if P93076}}
+    <P93076>{{P93076}}</P93076>
+    {{else}}
+    <P93076></P93076>
+    {{endif}}
+    {{if P93096}}
+    <P93096>{{P93096}}</P93096>
+    {{else}}
+    <P93096></P93096>
+    {{endif}}
+    {{if P93116}}
+    <P93116>{{P93116}}</P93116>
+    {{else}}
+    <P93116></P93116>
+    {{endif}}
+    {{if P93136}}
+    <P93136>{{P93136}}</P93136>
+    {{else}}
+    <P93136></P93136>
+    {{endif}}
+    {{if P93156}}
+    <P93156>{{P93156}}</P93156>
+    {{else}}
+    <P93156></P93156>
+    {{endif}}
+    {{if P93176}}
+    <P93176>{{P93176}}</P93176>
+    {{else}}
+    <P93176></P93176>
+    {{endif}}
+    {{if P93196}}
+    <P93196>{{P93196}}</P93196>
+    {{else}}
+    <P93196></P93196>
+    {{endif}}
+    {{if P93216}}
+    <P93216>{{P93216}}</P93216>
+    {{else}}
+    <P93216></P93216>
+    {{endif}}
+    {{if P93236}}
+    <P93236>{{P93236}}</P93236>
+    {{else}}
+    <P93236></P93236>
+    {{endif}}
+    {{if P93256}}
+    <P93256>{{P93256}}</P93256>
+    {{else}}
+    <P93256></P93256>
+    {{endif}}
+    {{if P93276}}
+    <P93276>{{P93276}}</P93276>
+    {{else}}
+    <P93276></P93276>
+    {{endif}}
+    {{if P93296}}
+    <P93296>{{P93296}}</P93296>
+    {{else}}
+    <P93296></P93296>
+    {{endif}}
+    {{if P93316}}
+    <P93316>{{P93316}}</P93316>
+    {{else}}
+    <P93316></P93316>
+    {{endif}}
+    {{if P93336}}
+    <P93336>{{P93336}}</P93336>
+    {{else}}
+    <P93336></P93336>
+    {{endif}}
+    {{if P93356}}
+    <P93356>{{P93356}}</P93356>
+    {{else}}
+    <P93356></P93356>
+    {{endif}}
+
+    <!-- SRV Settings -->
+    <!-- SRV: Name -->
+    <!-- String: Max length 512 characters -->
+    {{if P93008}}
+    <P93008>{{P93008}}</P93008>
+    {{else}}
+    <P93008></P93008>
+    {{endif}}
+    {{if P93048}}
+    <P93048>{{P93048}}</P93048>
+    {{else}}
+    <P93048></P93048>
+    {{endif}}
+    {{if P93068}}
+    <P93068>{{P93068}}</P93068>
+    {{else}}
+    <P93068></P93068>
+    {{endif}}
+    {{if P93088}}
+    <P93088>{{P93088}}</P93088>
+    {{else}}
+    <P93088></P93088>
+    {{endif}}
+    {{if P93108}}
+    <P93108>{{P93108}}</P93108>
+    {{else}}
+    <P93108></P93108>
+    {{endif}}
+    {{if P93128}}
+    <P93128>{{P93128}}</P93128>
+    {{else}}
+    <P93128></P93128>
+    {{endif}}
+    {{if P93148}}
+    <P93148>{{P93148}}</P93148>
+    {{else}}
+    <P93148></P93148>
+    {{endif}}
+    {{if P93168}}
+    <P93168>{{P93168}}</P93168>
+    {{else}}
+    <P93168></P93168>
+    {{endif}}
+    {{if P93188}}
+    <P93188>{{P93188}}</P93188>
+    {{else}}
+    <P93188></P93188>
+    {{endif}}
+    {{if P93208}}
+    <P93208>{{P93208}}</P93208>
+    {{else}}
+    <P93208></P93208>
+    {{endif}}
+    {{if P93228}}
+    <P93228>{{P93228}}</P93228>
+    {{else}}
+    <P93228></P93228>
+    {{endif}}
+    {{if P93248}}
+    <P93248>{{P93248}}</P93248>
+    {{else}}
+    <P93248></P93248>
+    {{endif}}
+    {{if P93268}}
+    <P93268>{{P93268}}</P93268>
+    {{else}}
+    <P93268></P93268>
+    {{endif}}
+    {{if P93288}}
+    <P93288>{{P93288}}</P93288>
+    {{else}}
+    <P93288></P93288>
+    {{endif}}
+    {{if P93308}}
+    <P93308>{{P93308}}</P93308>
+    {{else}}
+    <P93308></P93308>
+    {{endif}}
+    {{if P93328}}
+    <P93328>{{P93328}}</P93328>
+    {{else}}
+    <P93328></P93328>
+    {{endif}}
+    {{if P93348}}
+    <P93348>{{P93348}}</P93348>
+    {{else}}
+    <P93348></P93348>
+    {{endif}}
+
+    <!-- SRV: TTL. Default is 300. -->
+    <!-- Number: 300 to 65535 -->
+    <!-- Mandatory -->
+    {{if P93009}}
+    <P93009>{{P93009}}</P93009>
+    {{else}}
+    <P93009>300</P93009>
+    {{endif}}
+    {{if P93029}}
+    <P93029>{{P93029}}</P93029>
+    {{else}}
+    <P93029>300</P93029>
+    {{endif}}
+    {{if P93049}}
+    <P93049>{{P93049}}</P93049>
+    {{else}}
+    <P93049>300</P93049>
+    {{endif}}
+    {{if P93069}}
+    <P93069>{{P93069}}</P93069>
+    {{else}}
+    <P93069>300</P93069>
+    {{endif}}
+    {{if P93089}}
+    <P93089>{{P93089}}</P93089>
+    {{else}}
+    <P93089>300</P93089>
+    {{endif}}
+    {{if P93109}}
+    <P93109>{{P93109}}</P93109>
+    {{else}}
+    <P93109>300</P93109>
+    {{endif}}
+    {{if P93129}}
+    <P93129>{{P93129}}</P93129>
+    {{else}}
+    <P93129>300</P93129>
+    {{endif}}
+    {{if P93149}}
+    <P93149>{{P93149}}</P93149>
+    {{else}}
+    <P93149>300</P93149>
+    {{endif}}
+    {{if P93169}}
+    <P93169>{{P93169}}</P93169>
+    {{else}}
+    <P93169>300</P93169>
+    {{endif}}
+    {{if P93189}}
+    <P93189>{{P93189}}</P93189>
+    {{else}}
+    <P93189>300</P93189>
+    {{endif}}
+    {{if P93209}}
+    <P93209>{{P93209}}</P93209>
+    {{else}}
+    <P93209>300</P93209>
+    {{endif}}
+    {{if P93229}}
+    <P93229>{{P93229}}</P93229>
+    {{else}}
+    <P93229>300</P93229>
+    {{endif}}
+    {{if P93249}}
+    <P93249>{{P93249}}</P93249>
+    {{else}}
+    <P93249>300</P93249>
+    {{endif}}
+    {{if P93269}}
+    <P93269>{{P93269}}</P93269>
+    {{else}}
+    <P93269>300</P93269>
+    {{endif}}
+    {{if P93289}}
+    <P93289>{{P93289}}</P93289>
+    {{else}}
+    <P93289>300</P93289>
+    {{endif}}
+    {{if P93309}}
+    <P93309>{{P93309}}</P93309>
+    {{else}}
+    <P93309>300</P93309>
+    {{endif}}
+    {{if P93329}}
+    <P93329>{{P93329}}</P93329>
+    {{else}}
+    <P93329>300</P93329>
+    {{endif}}
+    {{if P93349}}
+    <P93349>{{P93349}}</P93349>
+    {{else}}
+    <P93349>300</P93349>
+    {{endif}}
+
+    <!-- SRV: Priority. Default is 0. -->
+    <!-- Number:0 to 65535 -->
+    <!-- Mandatory -->
+    {{if P93010}}
+    <P93010>{{P93010}}</P93010>
+    {{else}}
+    <P93010>0</P93010>
+    {{endif}}
+    {{if P93030}}
+    <P93030>{{P93030}}</P93030>
+    {{else}}
+    <P93030>0</P93030>
+    {{endif}}
+    {{if P93050}}
+    <P93050>{{P93050}}</P93050>
+    {{else}}
+    <P93050>0</P93050>
+    {{endif}}
+    {{if P93070}}
+    <P93070>{{P93070}}</P93070>
+    {{else}}
+    <P93070>0</P93070>
+    {{endif}}
+    {{if P93090}}
+    <P93090>{{P93090}}</P93090>
+    {{else}}
+    <P93090>0</P93090>
+    {{endif}}
+    {{if P93110}}
+    <P93110>{{P93110}}</P93110>
+    {{else}}
+    <P93110>0</P93110>
+    {{endif}}
+    {{if P93130}}
+    <P93130>{{P93130}}</P93130>
+    {{else}}
+    <P93130>0</P93130>
+    {{endif}}
+    {{if P93150}}
+    <P93150>{{P93150}}</P93150>
+    {{else}}
+    <P93150>0</P93150>
+    {{endif}}
+    {{if P93170}}
+    <P93170>{{P93170}}</P93170>
+    {{else}}
+    <P93170>0</P93170>
+    {{endif}}
+    {{if P93190}}
+    <P93190>{{P93190}}</P93190>
+    {{else}}
+    <P93190>0</P93190>
+    {{endif}}
+    {{if P93210}}
+    <P93210>{{P93210}}</P93210>
+    {{else}}
+    <P93210>0</P93210>
+    {{endif}}
+    {{if P93230}}
+    <P93230>{{P93230}}</P93230>
+    {{else}}
+    <P93230>0</P93230>
+    {{endif}}
+    {{if P93250}}
+    <P93250>{{P93250}}</P93250>
+    {{else}}
+    <P93250>0</P93250>
+    {{endif}}
+    {{if P93270}}
+    <P93270>{{P93270}}</P93270>
+    {{else}}
+    <P93270>0</P93270>
+    {{endif}}
+    {{if P93290}}
+    <P93290>{{P93290}}</P93290>
+    {{else}}
+    <P93290>0</P93290>
+    {{endif}}
+    {{if P93310}}
+    <P93310>{{P93310}}</P93310>
+    {{else}}
+    <P93310>0</P93310>
+    {{endif}}
+    {{if P93330}}
+    <P93330>{{P93330}}</P93330>
+    {{else}}
+    <P93330>0</P93330>
+    {{endif}}
+    {{if P93350}}
+    <P93350>{{P93350}}</P93350>
+    {{else}}
+    <P93350>0</P93350>
+    {{endif}}
+
+    <!-- SRV: Weight. Default is 0. -->
+    <!-- Number:0 to 65535 -->
+    <!-- Mandatory -->
+    {{if P93011}}
+    <P93011>{{P93011}}</P93011>
+    {{else}}
+    <P93011>0</P93011>
+    {{endif}}
+    {{if P93031}}
+    <P93031>{{P93031}}</P93031>
+    {{else}}
+    <P93031>0</P93031>
+    {{endif}}
+    {{if P93051}}
+    <P93051>{{P93051}}</P93051>
+    {{else}}
+    <P93051>0</P93051>
+    {{endif}}
+    {{if P93071}}
+    <P93071>{{P93071}}</P93071>
+    {{else}}
+    <P93071>0</P93071>
+    {{endif}}
+    {{if P93091}}
+    <P93091>{{P93091}}</P93091>
+    {{else}}
+    <P93091>0</P93091>
+    {{endif}}
+    {{if P93111}}
+    <P93111>{{P93111}}</P93111>
+    {{else}}
+    <P93111>0</P93111>
+    {{endif}}
+    {{if P93131}}
+    <P93131>{{P93131}}</P93131>
+    {{else}}
+    <P93131>0</P93131>
+    {{endif}}
+    {{if P93151}}
+    <P93151>{{P93151}}</P93151>
+    {{else}}
+    <P93151>0</P93151>
+    {{endif}}
+    {{if P93171}}
+    <P93171>{{P93171}}</P93171>
+    {{else}}
+    <P93171>0</P93171>
+    {{endif}}
+    {{if P93191}}
+    <P93191>{{P93191}}</P93191>
+    {{else}}
+    <P93191>0</P93191>
+    {{endif}}
+    {{if P93211}}
+    <P93211>{{P93211}}</P93211>
+    {{else}}
+    <P93211>0</P93211>
+    {{endif}}
+    {{if P93231}}
+    <P93231>{{P93231}}</P93231>
+    {{else}}
+    <P93231>0</P93231>
+    {{endif}}
+    {{if P93251}}
+    <P93251>{{P93251}}</P93251>
+    {{else}}
+    <P93251>0</P93251>
+    {{endif}}
+    {{if P93271}}
+    <P93271>{{P93271}}</P93271>
+    {{else}}
+    <P93271>0</P93271>
+    {{endif}}
+    {{if P93291}}
+    <P93291>{{P93291}}</P93291>
+    {{else}}
+    <P93291>0</P93291>
+    {{endif}}
+    {{if P93311}}
+    <P93311>{{P93311}}</P93311>
+    {{else}}
+    <P93311>0</P93311>
+    {{endif}}
+    {{if P93331}}
+    <P93331>{{P93331}}</P93331>
+    {{else}}
+    <P93331>0</P93331>
+    {{endif}}
+    {{if P93351}}
+    <P93351>{{P93351}}</P93351>
+    {{else}}
+    <P93351>0</P93351>
+    {{endif}}
+
+    <!-- SRV: Port. Default is 0. -->
+    <!-- Number:0 to 65535 -->
+    <!-- Mandatory -->
+    {{if P93012}}
+    <P93012>{{P93012}}</P93012>
+    {{else}}
+    <P93012>0</P93012>
+    {{endif}}
+    {{if P93032}}
+    <P93032>{{P93032}}</P93032>
+    {{else}}
+    <P93032>0</P93032>
+    {{endif}}
+    {{if P93052}}
+    <P93052>{{P93052}}</P93052>
+    {{else}}
+    <P93052>0</P93052>
+    {{endif}}
+    {{if P93072}}
+    <P93072>{{P93072}}</P93072>
+    {{else}}
+    <P93072>0</P93072>
+    {{endif}}
+    {{if P93092}}
+    <P93092>{{P93092}}</P93092>
+    {{else}}
+    <P93092>0</P93092>
+    {{endif}}
+    {{if P93112}}
+    <P93112>{{P93112}}</P93112>
+    {{else}}
+    <P93112>0</P93112>
+    {{endif}}
+    {{if P93132}}
+    <P93132>{{P93132}}</P93132>
+    {{else}}
+    <P93132>0</P93132>
+    {{endif}}
+    {{if P93152}}
+    <P93152>{{P93152}}</P93152>
+    {{else}}
+    <P93152>0</P93152>
+    {{endif}}
+    {{if P93172}}
+    <P93172>{{P93172}}</P93172>
+    {{else}}
+    <P93172>0</P93172>
+    {{endif}}
+    {{if P93192}}
+    <P93192>{{P93192}}</P93192>
+    {{else}}
+    <P93192>0</P93192>
+    {{endif}}
+    {{if P93212}}
+    <P93212>{{P93212}}</P93212>
+    {{else}}
+    <P93212>0</P93212>
+    {{endif}}
+    {{if P93232}}
+    <P93232>{{P93232}}</P93232>
+    {{else}}
+    <P93232>0</P93232>
+    {{endif}}
+    {{if P93252}}
+    <P93252>{{P93252}}</P93252>
+    {{else}}
+    <P93252>0</P93252>
+    {{endif}}
+    {{if P93272}}
+    <P93272>{{P93272}}</P93272>
+    {{else}}
+    <P93272>0</P93272>
+    {{endif}}
+    {{if P93292}}
+    <P93292>{{P93292}}</P93292>
+    {{else}}
+    <P93292>0</P93292>
+    {{endif}}
+    {{if P93312}}
+    <P93312>{{P93312}}</P93312>
+    {{else}}
+    <P93312>0</P93312>
+    {{endif}}
+    {{if P93332}}
+    <P93332>{{P93332}}</P93332>
+    {{else}}
+    <P93332>0</P93332>
+    {{endif}}
+    {{if P93352}}
+    <P93352>{{P93352}}</P93352>
+    {{else}}
+    <P93352>0</P93352>
+    {{endif}}
+
+    <!-- SRV: Target. -->
+    <!-- String: -->
+    {{if P93013}}
+    <P93013>{{P93013}}</P93013>
+    {{else}}
+    <P93013>0</P93013>
+    {{endif}}
+    {{if P93033}}
+    <P93033>{{P93033}}</P93033>
+    {{else}}
+    <P93033>0</P93033>
+    {{endif}}
+    {{if P93053}}
+    <P93053>{{P93053}}</P93053>
+    {{else}}
+    <P93053>0</P93053>
+    {{endif}}
+    {{if P93073}}
+    <P93073>{{P93073}}</P93073>
+    {{else}}
+    <P93073>0</P93073>
+    {{endif}}
+    {{if P93093}}
+    <P93093>{{P93093}}</P93093>
+    {{else}}
+    <P93093>0</P93093>
+    {{endif}}
+    {{if P93113}}
+    <P93113>{{P93113}}</P93113>
+    {{else}}
+    <P93113>0</P93113>
+    {{endif}}
+    {{if P93133}}
+    <P93133>{{P93133}}</P93133>
+    {{else}}
+    <P93133>0</P93133>
+    {{endif}}
+    {{if P93153}}
+    <P93153>{{P93153}}</P93153>
+    {{else}}
+    <P93153>0</P93153>
+    {{endif}}
+    {{if P93173}}
+    <P93173>{{P93173}}</P93173>
+    {{else}}
+    <P93173>0</P93173>
+    {{endif}}
+    {{if P93193}}
+    <P93193>{{P93193}}</P93193>
+    {{else}}
+    <P93193>0</P93193>
+    {{endif}}
+    {{if P93213}}
+    <P93213>{{P93213}}</P93213>
+    {{else}}
+    <P93213>0</P93213>
+    {{endif}}
+    {{if P93233}}
+    <P93233>{{P93233}}</P93233>
+    {{else}}
+    <P93233>0</P93233>
+    {{endif}}
+    {{if P93253}}
+    <P93253>{{P93253}}</P93253>
+    {{else}}
+    <P93253>0</P93253>
+    {{endif}}
+    {{if P93273}}
+    <P93273>{{P93273}}</P93273>
+    {{else}}
+    <P93273>0</P93273>
+    {{endif}}
+    {{if P93293}}
+    <P93293>{{P93293}}</P93293>
+    {{else}}
+    <P93293>0</P93293>
+    {{endif}}
+    {{if P93313}}
+    <P93313>{{P93313}}</P93313>
+    {{else}}
+    <P93313>0</P93313>
+    {{endif}}
+    {{if P93333}}
+    <P93333>{{P93333}}</P93333>
+    {{else}}
+    <P93333>0</P93333>
+    {{endif}}
+    {{if P93353}}
+    <P93353>{{P93353}}</P93353>
+    {{else}}
+    <P93353>0</P93353>
+    {{endif}}
+
+    <!-- NAPTR -->
+    <!-- NAPTR: Order Name. -->
+    <!-- String: Max length 512 characters. -->
+    {{if P93000}}
+    <P93000>{{P93000}}</P93000>
+    {{else}}
+    <P93000></P93000>
+    {{endif}}
+    {{if P93020}}
+    <P93020>{{P93020}}</P93020>
+    {{else}}
+    <P93020></P93020>
+    {{endif}}
+    {{if P93040}}
+    <P93040>{{P93040}}</P93040>
+    {{else}}
+    <P93040></P93040>
+    {{endif}}
+    {{if P93060}}
+    <P93060>{{P93060}}</P93060>
+    {{else}}
+    <P93060></P93060>
+    {{endif}}
+    {{if P93080}}
+    <P93080>{{P93080}}</P93080>
+    {{else}}
+    <P93080></P93080>
+    {{endif}}
+    {{if P93100}}
+    <P93100>{{P93100}}</P93100>
+    {{else}}
+    <P93100></P93100>
+    {{endif}}
+    {{if P93120}}
+    <P93120>{{P93120}}</P93120>
+    {{else}}
+    <P93120></P93120>
+    {{endif}}
+    {{if P93140}}
+    <P93140>{{P93140}}</P93140>
+    {{else}}
+    <P93140></P93140>
+    {{endif}}
+    {{if P93160}}
+    <P93160>{{P93160}}</P93160>
+    {{else}}
+    <P93160></P93160>
+    {{endif}}
+    {{if P93180}}
+    <P93180>{{P93180}}</P93180>
+    {{else}}
+    <P93180></P93180>
+    {{endif}}
+    {{if P93200}}
+    <P93200>{{P93200}}</P93200>
+    {{else}}
+    <P93200></P93200>
+    {{endif}}
+    {{if P93220}}
+    <P93220>{{P93220}}</P93220>
+    {{else}}
+    <P93220></P93220>
+    {{endif}}
+    {{if P93240}}
+    <P93240>{{P93240}}</P93240>
+    {{else}}
+    <P93240></P93240>
+    {{endif}}
+    {{if P93260}}
+    <P93260>{{P93260}}</P93260>
+    {{else}}
+    <P93260></P93260>
+    {{endif}}
+    {{if P93280}}
+    <P93280>{{P93280}}</P93280>
+    {{else}}
+    <P93280></P93280>
+    {{endif}}
+    {{if P93300}}
+    <P93300>{{P93300}}</P93300>
+    {{else}}
+    <P93300></P93300>
+    {{endif}}
+    {{if P93320}}
+    <P93320>{{P93320}}</P93320>
+    {{else}}
+    <P93320></P93320>
+    {{endif}}
+    {{if P93340}}
+    <P93340>{{P93340}}</P93340>
+    {{else}}
+    <P93340></P93340>
+    {{endif}}
+
+    <!-- NAPTR: TTL. Default is 300. -->
+    <!-- Number:300 to 65535 -->
+    <!-- Mandatory -->
+    {{if P93001}}
+    <P93001>{{P93001}}</P93001>
+    {{else}}
+    <P93001>300</P93001>
+    {{endif}}
+    {{if P93021}}
+    <P93021>{{P93021}}</P93021>
+    {{else}}
+    <P93021>300</P93021>
+    {{endif}}
+    {{if P93041}}
+    <P93041>{{P93041}}</P93041>
+    {{else}}
+    <P93041>300</P93041>
+    {{endif}}
+    {{if P93061}}
+    <P93061>{{P93061}}</P93061>
+    {{else}}
+    <P93061>300</P93061>
+    {{endif}}
+    {{if P93081}}
+    <P93081>{{P93081}}</P93081>
+    {{else}}
+    <P93081>300</P93081>
+    {{endif}}
+    {{if P93101}}
+    <P93101>{{P93101}}</P93101>
+    {{else}}
+    <P93101>300</P93101>
+    {{endif}}
+    {{if P93121}}
+    <P93121>{{P93121}}</P93121>
+    {{else}}
+    <P93121>300</P93121>
+    {{endif}}
+    {{if P93141}}
+    <P93141>{{P93141}}</P93141>
+    {{else}}
+    <P93141>300</P93141>
+    {{endif}}
+    {{if P93161}}
+    <P93161>{{P93161}}</P93161>
+    {{else}}
+    <P93161>300</P93161>
+    {{endif}}
+    {{if P93181}}
+    <P93181>{{P93181}}</P93181>
+    {{else}}
+    <P93181>300</P93181>
+    {{endif}}
+    {{if P93201}}
+    <P93201>{{P93201}}</P93201>
+    {{else}}
+    <P93201>300</P93201>
+    {{endif}}
+    {{if P93221}}
+    <P93221>{{P93221}}</P93221>
+    {{else}}
+    <P93221>300</P93221>
+    {{endif}}
+    {{if P93241}}
+    <P93241>{{P93241}}</P93241>
+    {{else}}
+    <P93241>300</P93241>
+    {{endif}}
+    {{if P93261}}
+    <P93261>{{P93261}}</P93261>
+    {{else}}
+    <P93261>300</P93261>
+    {{endif}}
+    {{if P93281}}
+    <P93281>{{P93281}}</P93281>
+    {{else}}
+    <P93281>300</P93281>
+    {{endif}}
+    {{if P93301}}
+    <P93301>{{P93301}}</P93301>
+    {{else}}
+    <P93301>300</P93301>
+    {{endif}}
+    {{if P93321}}
+    <P93321>{{P93321}}</P93321>
+    {{else}}
+    <P93321>300</P93321>
+    {{endif}}
+    {{if P93341}}
+    <P93341>{{P93341}}</P93341>
+    {{else}}
+    <P93341>300</P93341>
+    {{endif}}
+
+    <!-- NAPTR: Order. Default is 0. -->
+    <!-- Number:0 to 65535 -->
+    <!-- Mandatory -->
+    {{if P93002}}
+    <P93002>{{P93002}}</P93002>
+    {{else}}
+    <P93002>0</P93002>
+    {{endif}}
+    {{if P93022}}
+    <P93022>{{P93022}}</P93022>
+    {{else}}
+    <P93022>0</P93022>
+    {{endif}}
+    {{if P93042}}
+    <P93042>{{P93042}}</P93042>
+    {{else}}
+    <P93042>0</P93042>
+    {{endif}}
+    {{if P93062}}
+    <P93062>{{P93062}}</P93062>
+    {{else}}
+    <P93062>0</P93062>
+    {{endif}}
+    {{if P93082}}
+    <P93082>{{P93082}}</P93082>
+    {{else}}
+    <P93082>0</P93082>
+    {{endif}}
+    {{if P93102}}
+    <P93102>{{P93102}}</P93102>
+    {{else}}
+    <P93102>0</P93102>
+    {{endif}}
+    {{if P93122}}
+    <P93122>{{P93122}}</P93122>
+    {{else}}
+    <P93122>0</P93122>
+    {{endif}}
+    {{if P93142}}
+    <P93142>{{P93142}}</P93142>
+    {{else}}
+    <P93142>0</P93142>
+    {{endif}}
+    {{if P93162}}
+    <P93162>{{P93162}}</P93162>
+    {{else}}
+    <P93162>0</P93162>
+    {{endif}}
+    {{if P93182}}
+    <P93182>{{P93182}}</P93182>
+    {{else}}
+    <P93182>0</P93182>
+    {{endif}}
+    {{if P93202}}
+    <P93202>{{P93202}}</P93202>
+    {{else}}
+    <P93202>0</P93202>
+    {{endif}}
+    {{if P93222}}
+    <P93222>{{P93222}}</P93222>
+    {{else}}
+    <P93222>0</P93222>
+    {{endif}}
+    {{if P93242}}
+    <P93242>{{P93242}}</P93242>
+    {{else}}
+    <P93242>0</P93242>
+    {{endif}}
+    {{if P93262}}
+    <P93262>{{P93262}}</P93262>
+    {{else}}
+    <P93262>0</P93262>
+    {{endif}}
+    {{if P93282}}
+    <P93282>{{P93282}}</P93282>
+    {{else}}
+    <P93282>0</P93282>
+    {{endif}}
+    {{if P93302}}
+    <P93302>{{P93302}}</P93302>
+    {{else}}
+    <P93302>0</P93302>
+    {{endif}}
+    {{if P93322}}
+    <P93322>{{P93322}}</P93322>
+    {{else}}
+    <P93322>0</P93322>
+    {{endif}}
+    {{if P93342}}
+    <P93342>{{P93342}}</P93342>
+    {{else}}
+    <P93342>0</P93342>
+    {{endif}}
+
+    <!-- NAPTR: Preference. Default is 0. -->
+    <!-- Number:0 to 65535 -->
+    <!-- Mandatory -->
+    {{if P93003}}
+    <P93003>{{P93003}}</P93003>
+    {{else}}
+    <P93003>0</P93003>
+    {{endif}}
+    {{if P93023}}
+    <P93023>{{P93023}}</P93023>
+    {{else}}
+    <P93023>0</P93023>
+    {{endif}}
+    {{if P93043}}
+    <P93043>{{P93043}}</P93043>
+    {{else}}
+    <P93043>0</P93043>
+    {{endif}}
+    {{if P93063}}
+    <P93063>{{P93063}}</P93063>
+    {{else}}
+    <P93063>0</P93063>
+    {{endif}}
+    {{if P93083}}
+    <P93083>{{P93083}}</P93083>
+    {{else}}
+    <P93083>0</P93083>
+    {{endif}}
+    {{if P93103}}
+    <P93103>{{P93103}}</P93103>
+    {{else}}
+    <P93103>0</P93103>
+    {{endif}}
+    {{if P93123}}
+    <P93123>{{P93123}}</P93123>
+    {{else}}
+    <P93123>0</P93123>
+    {{endif}}
+    {{if P93143}}
+    <P93143>{{P93143}}</P93143>
+    {{else}}
+    <P93143>0</P93143>
+    {{endif}}
+    {{if P93163}}
+    <P93163>{{P93163}}</P93163>
+    {{else}}
+    <P93163>0</P93163>
+    {{endif}}
+    {{if P93183}}
+    <P93183>{{P93183}}</P93183>
+    {{else}}
+    <P93183>0</P93183>
+    {{endif}}
+    {{if P93203}}
+    <P93203>{{P93203}}</P93203>
+    {{else}}
+    <P93203>0</P93203>
+    {{endif}}
+    {{if P93223}}
+    <P93223>{{P93223}}</P93223>
+    {{else}}
+    <P93223>0</P93223>
+    {{endif}}
+    {{if P93243}}
+    <P93243>{{P93243}}</P93243>
+    {{else}}
+    <P93243>0</P93243>
+    {{endif}}
+    {{if P93263}}
+    <P93263>{{P93263}}</P93263>
+    {{else}}
+    <P93263>0</P93263>
+    {{endif}}
+    {{if P93283}}
+    <P93283>{{P93283}}</P93283>
+    {{else}}
+    <P93283>0</P93283>
+    {{endif}}
+    {{if P93303}}
+    <P93303>{{P93303}}</P93303>
+    {{else}}
+    <P93303>0</P93303>
+    {{endif}}
+    {{if P93323}}
+    <P93323>{{P93323}}</P93323>
+    {{else}}
+    <P93323>0</P93323>
+    {{endif}}
+    {{if P93343}}
+    <P93343>{{P93343}}</P93343>
+    {{else}}
+    <P93343>0</P93343>
+    {{endif}}
+
+    <!-- NAPTR: Flags. -->
+    <!-- String: -->
+    {{if P93004}}
+    <P93004>{{P93004}}</P93004>
+    {{else}}
+    <P93004></P93004>
+    {{endif}}
+    {{if P93024}}
+    <P93024>{{P93024}}</P93024>
+    {{else}}
+    <P93024></P93024>
+    {{endif}}
+    {{if P93044}}
+    <P93044>{{P93044}}</P93044>
+    {{else}}
+    <P93044></P93044>
+    {{endif}}
+    {{if P93064}}
+    <P93064>{{P93064}}</P93064>
+    {{else}}
+    <P93064></P93064>
+    {{endif}}
+    {{if P93084}}
+    <P93084>{{P93084}}</P93084>
+    {{else}}
+    <P93084></P93084>
+    {{endif}}
+    {{if P93104}}
+    <P93104>{{P93104}}</P93104>
+    {{else}}
+    <P93104></P93104>
+    {{endif}}
+    {{if P93124}}
+    <P93124>{{P93124}}</P93124>
+    {{else}}
+    <P93124></P93124>
+    {{endif}}
+    {{if P93144}}
+    <P93144>{{P93144}}</P93144>
+    {{else}}
+    <P93144></P93144>
+    {{endif}}
+    {{if P93164}}
+    <P93164>{{P93164}}</P93164>
+    {{else}}
+    <P93164></P93164>
+    {{endif}}
+    {{if P93184}}
+    <P93184>{{P93184}}</P93184>
+    {{else}}
+    <P93184></P93184>
+    {{endif}}
+    {{if P93204}}
+    <P93204>{{P93204}}</P93204>
+    {{else}}
+    <P93204></P93204>
+    {{endif}}
+    {{if P93224}}
+    <P93224>{{P93224}}</P93224>
+    {{else}}
+    <P93224></P93224>
+    {{endif}}
+    {{if P93244}}
+    <P93244>{{P93244}}</P93244>
+    {{else}}
+    <P93244></P93244>
+    {{endif}}
+    {{if P93264}}
+    <P93264>{{P93264}}</P93264>
+    {{else}}
+    <P93264></P93264>
+    {{endif}}
+    {{if P93284}}
+    <P93284>{{P93284}}</P93284>
+    {{else}}
+    <P93284></P93284>
+    {{endif}}
+    {{if P93304}}
+    <P93304>{{P93304}}</P93304>
+    {{else}}
+    <P93304></P93304>
+    {{endif}}
+    {{if P93324}}
+    <P93324>{{P93324}}</P93324>
+    {{else}}
+    <P93324></P93324>
+    {{endif}}
+    {{if P93344}}
+    <P93344>{{P93344}}</P93344>
+    {{else}}
+    <P93344></P93344>
+    {{endif}}
+
+    <!-- NAPTR: Service. Default is SIP+D2U. -->
+    <!-- String:Max length 512 characters. -->
+    <!-- Mandatory -->
+    {{if P93005}}
+    <P93005>{{P93005}}</P93005>
+    {{else}}
+    <P93005>SIP+D2U</P93005>
+    {{endif}}
+    {{if P93025}}
+    <P93025>{{P93025}}</P93025>
+    {{else}}
+    <P93025>SIP+D2U</P93025>
+    {{endif}}
+    {{if P93045}}
+    <P93045>{{P93045}}</P93045>
+    {{else}}
+    <P93045>SIP+D2U</P93045>
+    {{endif}}
+    {{if P93065}}
+    <P93065>{{P93065}}</P93065>
+    {{else}}
+    <P93065>SIP+D2U</P93065>
+    {{endif}}
+    {{if P93085}}
+    <P93085>{{P93085}}</P93085>
+    {{else}}
+    <P93085>SIP+D2U</P93085>
+    {{endif}}
+    {{if P93105}}
+    <P93105>{{P93105}}</P93105>
+    {{else}}
+    <P93105>SIP+D2U</P93105>
+    {{endif}}
+    {{if P93125}}
+    <P93125>{{P93125}}</P93125>
+    {{else}}
+    <P93125>SIP+D2U</P93125>
+    {{endif}}
+    {{if P93145}}
+    <P93145>{{P93145}}</P93145>
+    {{else}}
+    <P93145>SIP+D2U</P93145>
+    {{endif}}
+    {{if P93165}}
+    <P93165>{{P93165}}</P93165>
+    {{else}}
+    <P93165>SIP+D2U</P93165>
+    {{endif}}
+    {{if P93185}}
+    <P93185>{{P93185}}</P93185>
+    {{else}}
+    <P93185>SIP+D2U</P93185>
+    {{endif}}
+    {{if P93205}}
+    <P93205>{{P93205}}</P93205>
+    {{else}}
+    <P93205>SIP+D2U</P93205>
+    {{endif}}
+    {{if P93225}}
+    <P93225>{{P93225}}</P93225>
+    {{else}}
+    <P93225>SIP+D2U</P93225>
+    {{endif}}
+    {{if P93245}}
+    <P93245>{{P93245}}</P93245>
+    {{else}}
+    <P93245>SIP+D2U</P93245>
+    {{endif}}
+    {{if P93265}}
+    <P93265>{{P93265}}</P93265>
+    {{else}}
+    <P93265>SIP+D2U</P93265>
+    {{endif}}
+    {{if P93285}}
+    <P93285>{{P93285}}</P93285>
+    {{else}}
+    <P93285>SIP+D2U</P93285>
+    {{endif}}
+    {{if P93305}}
+    <P93305>{{P93305}}</P93305>
+    {{else}}
+    <P93305>SIP+D2U</P93305>
+    {{endif}}
+    {{if P93325}}
+    <P93325>{{P93325}}</P93325>
+    {{else}}
+    <P93325>SIP+D2U</P93325>
+    {{endif}}
+    {{if P93345}}
+    <P93345>{{P93345}}</P93345>
+    {{else}}
+    <P93345>SIP+D2U</P93345>
+    {{endif}}
+
+    <!-- NAPTR: Regexp. -->
+    <!-- String -->
+    {{if P93006}}
+    <P93006>{{P93006}}</P93006>
+    {{else}}
+    <P93006></P93006>
+    {{endif}}
+    {{if P93026}}
+    <P93026>{{P93026}}</P93026>
+    {{else}}
+    <P93026></P93026>
+    {{endif}}
+    {{if P93046}}
+    <P93046>{{P93046}}</P93046>
+    {{else}}
+    <P93046></P93046>
+    {{endif}}
+    {{if P93066}}
+    <P93066>{{P93066}}</P93066>
+    {{else}}
+    <P93066></P93066>
+    {{endif}}
+    {{if P93086}}
+    <P93086>{{P93086}}</P93086>
+    {{else}}
+    <P93086></P93086>
+    {{endif}}
+    {{if P93106}}
+    <P93106>{{P93106}}</P93106>
+    {{else}}
+    <P93106></P93106>
+    {{endif}}
+    {{if P93126}}
+    <P93126>{{P93126}}</P93126>
+    {{else}}
+    <P93126></P93126>
+    {{endif}}
+    {{if P93146}}
+    <P93146>{{P93146}}</P93146>
+    {{else}}
+    <P93146></P93146>
+    {{endif}}
+    {{if P93166}}
+    <P93166>{{P93166}}</P93166>
+    {{else}}
+    <P93166></P93166>
+    {{endif}}
+    {{if P93186}}
+    <P93186>{{P93186}}</P93186>
+    {{else}}
+    <P93186></P93186>
+    {{endif}}
+    {{if P93206}}
+    <P93206>{{P93206}}</P93206>
+    {{else}}
+    <P93206></P93206>
+    {{endif}}
+    {{if P93226}}
+    <P93226>{{P93226}}</P93226>
+    {{else}}
+    <P93226></P93226>
+    {{endif}}
+    {{if P93246}}
+    <P93246>{{P93246}}</P93246>
+    {{else}}
+    <P93246></P93246>
+    {{endif}}
+    {{if P93266}}
+    <P93266>{{P93266}}</P93266>
+    {{else}}
+    <P93266></P93266>
+    {{endif}}
+    {{if P93286}}
+    <P93286>{{P93286}}</P93286>
+    {{else}}
+    <P93286></P93286>
+    {{endif}}
+    {{if P93306}}
+    <P93306>{{P93306}}</P93306>
+    {{else}}
+    <P93306></P93306>
+    {{endif}}
+    {{if P93326}}
+    <P93326>{{P93326}}</P93326>
+    {{else}}
+    <P93326></P93326>
+    {{endif}}
+    {{if P93346}}
+    <P93346>{{P93346}}</P93346>
+    {{else}}
+    <P93346></P93346>
+    {{endif}}
+
+    <!-- NAPTR: Replacement. -->
+    <!-- String -->
+    {{if P93007}}
+    <P93007>{{P93007}}</P93007>
+    {{else}}
+    <P93007></P93007>
+    {{endif}}
+    {{if P93027}}
+    <P93027>{{P93027}}</P93027>
+    {{else}}
+    <P93027></P93027>
+    {{endif}}
+    {{if P93047}}
+    <P93047>{{P93047}}</P93047>
+    {{else}}
+    <P93047></P93047>
+    {{endif}}
+    {{if P93067}}
+    <P93067>{{P93067}}</P93067>
+    {{else}}
+    <P93067></P93067>
+    {{endif}}
+    {{if P93087}}
+    <P93087>{{P93087}}</P93087>
+    {{else}}
+    <P93087></P93087>
+    {{endif}}
+    {{if P93107}}
+    <P93107>{{P93107}}</P93107>
+    {{else}}
+    <P93107></P93107>
+    {{endif}}
+    {{if P93127}}
+    <P93127>{{P93127}}</P93127>
+    {{else}}
+    <P93127></P93127>
+    {{endif}}
+    {{if P93147}}
+    <P93147>{{P93147}}</P93147>
+    {{else}}
+    <P93147></P93147>
+    {{endif}}
+    {{if P93167}}
+    <P93167>{{P93167}}</P93167>
+    {{else}}
+    <P93167></P93167>
+    {{endif}}
+    {{if P93187}}
+    <P93187>{{P93187}}</P93187>
+    {{else}}
+    <P93187></P93187>
+    {{endif}}
+    {{if P93207}}
+    <P93207>{{P93207}}</P93207>
+    {{else}}
+    <P93207></P93207>
+    {{endif}}
+    {{if P93227}}
+    <P93227>{{P93227}}</P93227>
+    {{else}}
+    <P93227></P93227>
+    {{endif}}
+    {{if P93247}}
+    <P93247>{{P93247}}</P93247>
+    {{else}}
+    <P93247></P93247>
+    {{endif}}
+    {{if P93267}}
+    <P93267>{{P93267}}</P93267>
+    {{else}}
+    <P93267></P93267>
+    {{endif}}
+    {{if P93287}}
+    <P93287>{{P93287}}</P93287>
+    {{else}}
+    <P93287></P93287>
+    {{endif}}
+    {{if P93307}}
+    <P93307>{{P93307}}</P93307>
+    {{else}}
+    <P93307></P93307>
+    {{endif}}
+    {{if P93327}}
+    <P93327>{{P93327}}</P93327>
+    {{else}}
+    <P93327></P93327>
+    {{endif}}
+    {{if P93347}}
+    <P93347>{{P93347}}</P93347>
+    {{else}}
+    <P93347></P93347>
+    {{endif}}
+
     <!-- Profile 1-General Settings -->
 
     <!-- Profile Active.  0 - No, 1 - Yes -->
@@ -1896,6 +3680,8 @@
 
     <!-- SIP Server -->
     <!-- String: serveraddress -->
+    <!-- SIP Server -->
+    <!-- String: serveraddress -->
     <P47>{{device_info.sip_server}}</P47>
 
     <!-- Failover SIP Server -->
@@ -1906,8 +3692,10 @@
     <P967></P967>
     {{endif}}
 
-    <!-- Prefer Primary SIP Server. 0 - No, 1 - Yes. -->
-    <!-- Number: 0,1 -->
+    <!-- Prefer Primary SIP Server. Default is 0. -->
+    <!-- 0 - No, 1 - Will register to primary server if failover server registration expires, -->
+    <!-- 2 - Will register to primary server if primary server responds. -->
+    <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
     {{if P4567}}
     <P4567>{{P4567}}</P4567>
@@ -1915,6 +3703,8 @@
     <P4567>0</P4567>
     {{endif}}
 
+    <!-- Primary Outbound Proxy -->
+    <!-- String: serveraddress -->
     <!-- Primary Outbound Proxy -->
     <!-- String: serveraddress -->
     <P48>{{device_info.outbound_proxy}}</P48>
@@ -1963,7 +3753,7 @@
     {{if P103}}
     <P103>{{P103}}</P103>
     {{else}}
-    <P103>1</P103>
+    <P103>0</P103>
     {{endif}}
 
     <!-- DNS SRV Failover Mode, 0 - Default, 1 - Saved one until DNS TTL, 2 - Saved one until no response, 3 - Failback follows failback expiration timer -->
@@ -2025,8 +3815,8 @@
     <P2310></P2310>
     {{endif}}
 
-    <!-- NAT Traversal . 0 - No, 1 - STUN, 2 - Keep-Alive, 3 - UPnP, 4 - VPN -->
-    <!-- Number: 0,1,2,3,4 -->
+    <!-- NAT Traversal. 0 - No, 1 - STUN, 2 - Keep-Alive, 3 - UPnP, 4 - Auto, 5 - VPN -->
+    <!-- Number: 0,1,2,3,4,5 -->
     <!-- Mandatory -->
     {{if P52}}
     <P52>{{P52}}</P52>
@@ -2057,11 +3847,24 @@
     <!-- SIP Transport. 0 - UDP, 1 - TCP, 2 - TLS/TCP -->
     <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
+    <!-- SIP Transport. 0 - UDP, 1 - TCP, 2 - TLS/TCP -->
+    <!-- Number: 0,1,2 -->
+    <!-- Mandatory -->
     {{if device_info.transport == 'tcp'}}
     <P130>1</P130>
     {{else}}
     <P130>0</P130>
     {{endif}}
+	
+	<!-- SIP URI Scheme When Using TLS. 0 - sip, 1 - sips. -->
+    <!-- Number: 0,1. Default is 1. -->
+    <!-- Mandatory -->
+    {{if P2329}}
+    <P2329>{{P2329}}</P2329>
+    {{else}}
+    <P2329>1</P2329>
+    {{endif}}
+
     <!-- SIP Registration. 0 - No, 1 - Yes -->
     <!-- Number: 0,1 -->
     <!-- Mandatory -->
@@ -2104,7 +3907,7 @@
     {{if P32}}
     <P32>{{P32}}</P32>
     {{else}}
-    <P32>2</P32>
+    <P32>60</P32>
     {{endif}}
 
     <!-- SIP Registration Failure Retry Wait Time (in seconds. Between 1-3600, default is 20) -->
@@ -2116,13 +3919,13 @@
     <P138>20</P138>
     {{endif}}
 
-    <!-- SIP Registration Failure Retry Wait Time upon 403 Forbidden. 0 second means stop retry registration. Default is 1200 sec. -->
-    <!-- Number 0 to 3600 -->
+    <!-- SIP Registration Failure Retry Wait Time upon 403 Forbidden. 0 second means stop retry registration. Default is 0 sec. -->
+    <!-- Number 0 to 10080 -->
     <!-- Mandatory -->
     {{if P26002}}
     <P26002>{{P26002}}</P26002>
     {{else}}
-    <P26002>1200</P26002>
+    <P26002>0</P26002>
     {{endif}}
 
     <!-- Reregister before Expiration -->
@@ -2159,6 +3962,15 @@
     <P2399>{{P2399}}</P2399>
     {{else}}
     <P2399>3</P2399>
+    {{endif}}
+
+    <!-- Switch SIP Server When Keep-Alive Max Lost Is Reached. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    {{if P28907}}
+    <P28907>{{P28907}}</P28907>
+    {{else}}
+    <P28907>0</P28907>
     {{endif}}
 
     <!-- Local SIP port (default 5060) -->
@@ -2262,6 +4074,16 @@
     <P99>0</P99>
     {{endif}}
 
+
+    <!-- Subscribe Retry Wait Time upon 403 Forbidden. Default is 0. -->
+    <!-- Number 0 to 10080 -->
+    <!-- Mandatory -->
+    {{if P60068}}
+    <P60068>{{P60068}}</P60068>
+    {{else}}
+    <P60068>0</P60068>
+    {{endif}}
+
     <!-- Enable 100rel. 0 - No, 1 - Yes -->
     <!-- Number: 0 to 1 -->
     <!-- Mandatory -->
@@ -2280,7 +4102,7 @@
     <P63>0</P63>
     {{endif}}
 
-    <!-- Use Request Routing ID in SIP Headers, 0 - No, 1 - Yes -->
+    <!-- Use Routing ID in SIP Headers. 0 - No, 1 - Yes -->
     <!-- Number: 0,1 -->
     <!-- Mandatory -->
     {{if P4891}}
@@ -2350,11 +4172,23 @@
     <P29098>0</P29098>
     {{endif}}
 
+    <!-- Use P-Early-Media Header. 0 - No, 1 - Yes. Default 0. -->
+    <!-- Number: 0,1 -->
+    <!-- Mandatory -->
+    {{if P60072}}
+    <P60072>{{P60072}}</P60072>
+    {{else}}
+    <P60072>0</P60072>
+    {{endif}}
 
     <!-- SIP REGISTER Contact Header Uses. 0 - LAN Address, 1 - WAN Address -->
     <!-- Number: 0, 1 -->
     <!-- Mandatory -->
-    <!-- P4437=0 -->
+    {{if P4437}}
+    <P4437>{{P4437}}</P4437>
+    {{else}}
+    <P4437>0</P4437>
+    {{endif}}
 
     <!-- Caller ID Display. 0 - Auto, 1 - Disabled, 2 - From Header -->
     <!-- Number: 0, 1, 2 -->
@@ -2602,6 +4436,15 @@
     <P4416>1</P4416>
     {{endif}}
 
+    <!-- Re-INVITE Upon CNG Count. Deafult is 0. -->
+    <!-- Number: 0 to 6 -->
+    <!-- Mandatory -->
+    {{if P28923}}
+    <P28923>{{P28923}}</P28923>
+    {{else}}
+    <P28923>0</P28923>
+    {{endif}}
+
     <!-- Enable Silence Detection for Fax Disconnect. 0 - No, 1 - Yes -->
     <!-- Number: 0 to 1 -->
     <!-- Mandatory -->
@@ -2609,6 +4452,15 @@
     <P4406>{{P4406}}</P4406>
     {{else}}
     <P4406>1</P4406>
+    {{endif}}
+
+    <!-- T.38 Max Bit Rate. 1 - 4800bps, 2 -  9600bps, 3 - 14400bps. Default is 2. -->
+    <!-- Number: 0, 1, 2 -->
+    <!-- Mandatory -->
+    {{if P28913}}
+    <P28913>{{P28913}}</P28913>
+    {{else}}
+    <P28913>2</P28913>
     {{endif}}
 
     <!-- Profile 1-Audio Settings -->
@@ -2687,6 +4539,51 @@
     <P28138>{{P28138}}</P28138>
     {{else}}
     <P28138>50</P28138>
+    {{endif}}
+
+    <!-- Inband DTMF Tx Gain. Default is 6. -->
+    <!-- Number: -12 to 12 -->
+    <!-- Mandatory -->
+    {{if P28772}}
+    <P28772>{{P28772}}</P28772>
+    {{else}}
+    <P28772>6</P28772>
+    {{endif}}
+
+    <!-- DSP DTMF Detector Min Level. Default is -25. -->
+    <!-- Number: -45 – 0 -->
+    <!-- Mandatory -->
+    {{if P28804}}
+    <P28804>{{P28804}}</P28804>
+    {{else}}
+    <P28804>-25</P28804>
+    {{endif}}
+
+    <!-- DSP DTMF Detector SNR. Default is 1. -->
+    <!-- Number: 0 - 2 -->
+    <!-- Mandatory -->
+    {{if P28808}}
+    <P28808>{{P28808}}</P28808>
+    {{else}}
+    <P28808>1</P28808>
+    {{endif}}
+
+    <!-- DSP DTMF Detector Deviation. Default is 25. -->
+    <!-- Number: 0 – 25 -->
+    <!-- Mandatory -->
+    {{if P28812}}
+    <P28812>{{P28812}}</P28812>
+    {{else}}
+    <P28812>25</P28812>
+    {{endif}}
+
+    <!-- DSP DTMF Detector Twist. Default is 5. -->
+    <!-- Number: 0 – 12 -->
+    <!-- Mandatory -->
+    {{if P28816}}
+    <P28816>{{P28816}}</P28816>
+    {{else}}
+    <P28816>5</P28816>
     {{endif}}
 
     <!-- Preferred Vocoder -->
@@ -3129,12 +5026,20 @@
     <P85>4</P85>
     {{endif}}
 
-    <!-- Offhook Auto-Dial Delay (default is 0) -->
+    <!-- Off-Hook Auto-Dial Delay (default is 0) -->
     <!-- String: 0 to 60 -->
     {{if P4045}}
     <P4045>{{P4045}}</P4045>
     {{else}}
     <P4045>0</P4045>
+    {{endif}}
+
+    <!-- Special Auto Dial number for an incomplete dial by user -->
+    <!-- String: Max Length: 64 characters -->
+    {{if P28918}}
+    <P28918>{{P28918}}</P28918>
+    {{else}}
+    <P28918></P28918>
     {{endif}}
 
     <!-- Allow Auto-Dial Config Per Port. 0 - Disabled, 1 - Enabled -->
@@ -3153,6 +5058,15 @@
     <P26062>{{P26062}}</P26062>
     {{else}}
     <P26062>1</P26062>
+    {{endif}}
+
+    <!-- RTP/RTCP Keep Alive On Hold. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    {{if P28839}}
+    <P28839>{{P28839}}</P28839>
+    {{else}}
+    <P28839>0</P28839>
     {{endif}}
 
     <!-- Disable Call Waiting. 0 - No, 1 - Yes -->
@@ -3236,8 +5150,8 @@
     <P855>0</P855>
     {{endif}}
 
-    <!-- Visual MWI type: 1 - FSK, 2 - Neon -->
-    <!-- Number: 1,2 -->
+    <!-- Visual MWI type: 1 - FSK, 2 - Neon, 3 - PR. Default is 1. -->
+    <!-- Number: 1,2,3 -->
     <!-- Mandatory -->
     {{if P4371}}
     <P4371>{{P4371}}</P4371>
@@ -3261,6 +5175,15 @@
     <P4560>{{P4560}}</P4560>
     {{else}}
     <P4560>0</P4560>
+    {{endif}}
+
+    <!-- Ringing Transfer. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    {{if P4820}}
+    <P4820>{{P4820}}</P4820>
+    {{else}}
+    <P4820>0</P4820>
     {{endif}}
 
     <!-- Send Hook Flash Event. 0 - No, 1 - Yes -->
@@ -3308,6 +5231,15 @@
     <P185>60</P185>
     {{endif}}
 
+    <!-- Ringback Tone at No Early Media. 0 - No, 1 - Yes. Default 0. -->
+    <!-- Number: 0,1 -->
+    <!-- Mandatory -->
+    {{if P60073}}
+    <P60073>{{P60073}}</P60073>
+    {{else}}
+    <P60073>0</P60073>
+    {{endif}}
+
     <!-- Delayed Call Forward Wait Time. Allowed range 1-120, in seconds. Default 20 seconds. -->
     <!-- Number: 1 to 120 -->
     <!-- Mandatory -->
@@ -3335,18 +5267,17 @@
     <P129>0</P129>
     {{endif}}
 
-    <!-- Replace Beginning '+' with 00 in Caller ID. 0 - No, 1 - Yes -->
-    <!-- Number: 0, 1 -->
-    <!-- Mandatory -->
-    {{if P29073}}
-    <P29073>{{P29073}}</P29073>
+    <!-- Replace Beginning '+' with 00 in Caller ID. -->
+    <!-- String: Number 0-9, Max Length: 6. -->
+    {{if P60083}}
+    <P60083>{{P60083}}</P60083>
     {{else}}
-    <P29073>0</P29073>
+    <P60083></P60083>
     {{endif}}
 
 
-    <!-- Hunting Group Type. 0 - Circular, 1 - Linear -->
-    <!-- Number: 0,1 -->
+    <!-- Hunting Group Type. 0 - Circular, 1 - Linear, 2 - Parallel. Default is 0. -->
+    <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
     {{if P4395}}
     <P4395>{{P4395}}</P4395>
@@ -4089,8 +6020,10 @@
     <P987></P987>
     {{endif}}
 
-    <!-- Prefer Primary SIP Server. 0 - No, 1 - Yes. -->
-    <!-- Number: 0,1 -->
+    <!-- Prefer Primary SIP Server. Default is 0. -->
+    <!-- 0 - No, 1 - Will register to primary server if failover server registration expires, -->
+    <!-- 2 - Will register to primary server if primary server responds. -->
+    <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
     {{if P4568}}
     <P4568>{{P4568}}</P4568>
@@ -4211,8 +6144,8 @@
     <P2410></P2410>
     {{endif}}
 
-    <!-- NAT Traversal . 0 - No, 1 - STUN, 2 - Keep-Alive, 3 - UPnP, 4 - VPN -->
-    <!-- Number: 0,1,2,3,4 -->
+    <!-- NAT Traversal. 0 - No, 1 - STUN, 2 - Keep-Alive, 3 - UPnP, 4 - Auto, 5 - VPN -->
+    <!-- Number: 0,1,2,3,4,5 -->
     <!-- Mandatory -->
     {{if P730}}
     <P730>{{P730}}</P730>
@@ -4247,6 +6180,15 @@
     <P830>{{P830}}</P830>
     {{else}}
     <P830>0</P830>
+    {{endif}}
+
+	<!-- SIP URI Scheme When Using TLS. 0 - sip, 1 - sips. -->
+    <!-- Number: 0,1. Default is 1. -->
+    <!-- Mandatory -->
+    {{if P2429}}
+    <P2429>{{P2429}}</P2429>
+    {{else}}
+    <P2429>1</P2429>
     {{endif}}
 
     <!-- SIP Registration. 0 - No, 1 - Yes -->
@@ -4303,13 +6245,13 @@
     <P138>20</P138>
     {{endif}}
 
-    <!-- SIP Registration Failure Retry Wait Time upon 403 Forbidden. 0 second means stop retry registration. Default is 1200 sec. -->
-    <!-- Number 0 to 3600 -->
+    <!-- SIP Registration Failure Retry Wait Time upon 403 Forbidden. 0 second means stop retry registration. Default is 0 sec. -->
+    <!-- Number 0 to 10080 -->
     <!-- Mandatory -->
     {{if P26102}}
     <P26102>{{P26102}}</P26102>
     {{else}}
-    <P26102>1200</P26102>
+    <P26102>0</P26102>
     {{endif}}
 
     <!-- Reregister before Expiration -->
@@ -4346,6 +6288,15 @@
     <P2499>{{P2499}}</P2499>
     {{else}}
     <P2499>3</P2499>
+    {{endif}}
+
+    <!-- Switch SIP Server When Keep-Alive Max Lost Is Reached. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    {{if P28908}}
+    <P28908>{{P28908}}</P28908>
+    {{else}}
+    <P28908>0</P28908>
     {{endif}}
 
     <!-- Local SIP port (default 6060) -->
@@ -4449,6 +6400,15 @@
     <P709>0</P709>
     {{endif}}
 
+    <!-- Subscribe Retry Wait Time upon 403 Forbidden. Default is 0. -->
+    <!-- Number 0 to 10080 -->
+    <!-- Mandatory -->
+    {{if P60168}}
+    <P60168>{{P60168}}</P60168>
+    {{else}}
+    <P60168>0</P60168>
+    {{endif}}
+
     <!-- Enable 100rel. 0 - No, 1 - Yes -->
     <!-- Number: 0 to 1 -->
     <!-- Mandatory -->
@@ -4467,7 +6427,7 @@
     <P763>0</P763>
     {{endif}}
 
-    <!-- Use Request Routing ID in SIP Headers, 0 - No, 1 - Yes -->
+    <!-- Use Routing ID in SIP Headers. 0 - No, 1 - Yes -->
     <!-- Number: 0,1 -->
     <!-- Mandatory -->
     {{if P4892}}
@@ -4537,10 +6497,23 @@
     <P29198>0</P29198>
     {{endif}}
 
+    <!-- Use P-Early-Media Header. 0 - No, 1 - Yes. Default 0. -->
+    <!-- Number: 0,1 -->
+    <!-- Mandatory -->
+    {{if P60172}}
+    <P60172>{{P60172}}</P60172>
+    {{else}}
+    <P60172>0</P60172>
+    {{endif}}
+
     <!-- SIP REGISTER Contact Header Uses. 0 - LAN Address, 1 - WAN Address -->
     <!-- Number: 0, 1 -->
     <!-- Mandatory -->
-    <!-- P4438=0 -->
+    {{if P4438}}
+    <P4438>{{P4438}}</P4438>
+    {{else}}
+    <P4438>0</P4438>
+    {{endif}}
 
     <!-- Caller ID Display. 0 - Auto, 1 - Disable, 2 - From Header -->
     <!-- Number: 0, 1, 2 -->
@@ -4798,6 +6771,15 @@
     <P4417>1</P4417>
     {{endif}}
 
+    <!-- Re-INVITE Upon CNG Count. Deafult is 0. -->
+    <!-- Number: 0 to 6 -->
+    <!-- Mandatory -->
+    {{if P28924}}
+    <P28924>{{P28924}}</P28924>
+    {{else}}
+    <P28924>0</P28924>
+    {{endif}}
+
     <!-- Enable Silence Detection for Fax Disconnect. 0 - No, 1 - Yes -->
     <!-- Number: 0 to 1 -->
     <!-- Mandatory -->
@@ -4805,6 +6787,15 @@
     <P4407>{{P4407}}</P4407>
     {{else}}
     <P4407>1</P4407>
+    {{endif}}
+
+    <!-- T.38 Max Bit Rate. 1 - 4800bps, 2 -  9600bps, 3 - 14400bps. Default is 2. -->
+    <!-- Number: 0, 1, 2 -->
+    <!-- Mandatory -->
+    {{if P28914}}
+    <P28914>{{P28914}}</P28914>
+    {{else}}
+    <P28914>2</P28914>
     {{endif}}
 
     <!-- Profile 2-Audio Settings -->
@@ -4891,6 +6882,51 @@
     <P28139>{{P28139}}</P28139>
     {{else}}
     <P28139>50</P28139>
+    {{endif}}
+
+    <!-- Inband DTMF Tx Gain. Default is 6. -->
+    <!-- Number: -12 to 12 -->
+    <!-- Mandatory -->
+    {{if P28773}}
+    <P28773>{{P28773}}</P28773>
+    {{else}}
+    <P28773>6</P28773>
+    {{endif}}
+
+    <!-- DSP DTMF Detector Min Level. Default is -25. -->
+    <!-- Number: -45 – 0 -->
+    <!-- Mandatory -->
+    {{if P28805}}
+    <P28805>{{P28805}}</P28805>
+    {{else}}
+    <P28805>-25</P28805>
+    {{endif}}
+
+    <!-- DSP DTMF Detector SNR. Default is 1. -->
+    <!-- Number: 0 - 2 -->
+    <!-- Mandatory -->
+    {{if P28809}}
+    <P28809>{{P28809}}</P28809>
+    {{else}}
+    <P28809>1</P28809>
+    {{endif}}
+
+    <!-- DSP DTMF Detector Deviation. Default is 25. -->
+    <!-- Number: 0 – 25 -->
+    <!-- Mandatory -->
+    {{if P28813}}
+    <P28813>{{P28813}}</P28813>
+    {{else}}
+    <P28813>25</P28813>
+    {{endif}}
+
+    <!-- DSP DTMF Detector Twist. Default is 5. -->
+    <!-- Number: 0 – 12 -->
+    <!-- Mandatory -->
+    {{if P28817}}
+    <P28817>{{P28817}}</P28817>
+    {{else}}
+    <P28817>5</P28817>
     {{endif}}
 
     <!-- Preferred Vocoder -->
@@ -5356,12 +7392,20 @@
     <P292>4</P292>
     {{endif}}
 
-    <!-- Offhook Auto-Dial Delay (default is 0) -->
+    <!-- Off-Hook Auto-Dial Delay (default is 0) -->
     <!-- String: 0 to 60 -->
     {{if P4046}}
     <P4046>{{P4046}}</P4046>
     {{else}}
     <P4046>0</P4046>
+    {{endif}}
+
+    <!-- Special Auto Dial number for an incomplete dial by user -->
+    <!-- String: Max Length: 64 characters -->
+    {{if P28919}}
+    <P28919>{{P28919}}</P28919>
+    {{else}}
+    <P28919></P28919>
     {{endif}}
 
     <!-- Allow Auto-Dial Config Per Port. 0 - Disabled, 1 - Enabled -->
@@ -5380,6 +7424,15 @@
     <P26162>{{P26162}}</P26162>
     {{else}}
     <P26162>1</P26162>
+    {{endif}}
+
+    <!-- RTP/RTCP Keep Alive On Hold. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    {{if P28840}}
+    <P28840>{{P28840}}</P28840>
+    {{else}}
+    <P28840>0</P28840>
     {{endif}}
 
     <!-- Disable Call Waiting. 0 - No, 1 - Yes -->
@@ -5463,8 +7516,8 @@
     <P869>0</P869>
     {{endif}}
 
-    <!-- Visual MWI type: 1 - FSK, 2 - Neon -->
-    <!-- Number: 1,2 -->
+    <!-- Visual MWI type: 1 - FSK, 2 - Neon, 3 - PR. Default is 1. -->
+    <!-- Number: 1,2,3 -->
     <!-- Mandatory -->
     {{if P4372}}
     <P4372>{{P4372}}</P4372>
@@ -5488,6 +7541,15 @@
     <P4561>{{P4561}}</P4561>
     {{else}}
     <P4561>0</P4561>
+    {{endif}}
+
+    <!-- Ringing Transfer. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    {{if P4821}}
+    <P4821>{{P4821}}</P4821>
+    {{else}}
+    <P4821>0</P4821>
     {{endif}}
 
     <!-- Send Hook Flash Event. 0 - No, 1 - Yes -->
@@ -5535,6 +7597,15 @@
     <P816>60</P816>
     {{endif}}
 
+    <!-- Ringback Tone at No Early Media. 0 - No, 1 - Yes. Default 0. -->
+    <!-- Number: 0,1 -->
+    <!-- Mandatory -->
+    {{if P60173}}
+    <P60173>{{P60173}}</P60173>
+    {{else}}
+    <P60173>0</P60173>
+    {{endif}}
+
     <!-- Delayed Call Forward Wait Time. Allowed range 1-120, in seconds. Default 20 seconds. -->
     <!-- Number: 1 to 120 -->
     <!-- Mandatory -->
@@ -5562,18 +7633,17 @@
     <P446>0</P446>
     {{endif}}
 
-    <!-- Replace Beginning '+' with 00 in Caller ID. 0 - No, 1 - Yes -->
-    <!-- Number: 0, 1 -->
-    <!-- Mandatory -->
-    {{if P29173}}
-    <P29173>{{P29173}}</P29173>
+    <!-- Replace Beginning '+' with 00 in Caller ID. -->
+    <!-- String: Number 0-9, Max Length: 6. -->
+    {{if P60183}}
+    <P60183>{{P60183}}</P60183>
     {{else}}
-    <P29173>0</P29173>
+    <P60183>0</P60183>
     {{endif}}
 
 
-    <!-- Hunting Group Type. 0 - Circular, 1 - Linear -->
-    <!-- Number: 0,1 -->
+    <!-- Hunting Group Type. 0 - Circular, 1 - Linear, 2 - Parallel. Default is 0. -->
+    <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
     {{if P4396}}
     <P4396>{{P4396}}</P4396>
@@ -6329,8 +8399,10 @@
     <P997></P997>
     {{endif}}
 
-    <!-- Prefer Primary SIP Server. 0 - No, 1 - Yes. -->
-    <!-- Number: 0,1 -->
+    <!-- Prefer Primary SIP Server. Default is 0. -->
+    <!-- 0 - No, 1 - Will register to primary server if failover server registration expires, -->
+    <!-- 2 - Will register to primary server if primary server responds. -->
+    <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
     {{if P4569}}
     <P4569>{{P4569}}</P4569>
@@ -6452,8 +8524,8 @@
     <P2510></P2510>
     {{endif}}
 
-    <!-- NAT Traversal . 0 - No, 1 - STUN, 2 - Keep-Alive, 3 - UPnP, 4 - VPN -->
-    <!-- Number: 0,1,2,3,4 -->
+    <!-- NAT Traversal. 0 - No, 1 - STUN, 2 - Keep-Alive, 3 - UPnP, 4 - Auto, 5 - VPN -->
+    <!-- Number: 0,1,2,3,4,5 -->
     <!-- Mandatory -->
     {{if P630}}
     <P630>{{P630}}</P630>
@@ -6481,13 +8553,22 @@
 
     <!-- Basic Settings -->
 
-    <!-- SIP Transport. 0 - UDP, 1 - TCP, 2 - TLS -->
+    <!-- SIP Transport. 0 - UDP, 1 - TCP, 2 - TLS/TCP -->
     <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
     {{if P530}}
     <P530>{{P530}}</P530>
     {{else}}
     <P530>0</P530>
+    {{endif}}
+
+	<!-- SIP URI Scheme When Using TLS. 0 - sip, 1 - sips. -->
+    <!-- Number: 0,1. Default is 1. -->
+    <!-- Mandatory -->
+    {{if P2529}}
+    <P2529>{{P2529}}</P2529>
+    {{else}}
+    <P2529>1</P2529>
     {{endif}}
 
     <!-- SIP Registration. 0 - No, 1 - Yes -->
@@ -6544,13 +8625,13 @@
     <P138>20</P138>
     {{endif}}
 
-    <!-- SIP Registration Failure Retry Wait Time upon 403 Forbidden. 0 second means stop retry registration. Default is 1200 sec. -->
-    <!-- Number 0 to 3600 -->
+    <!-- SIP Registration Failure Retry Wait Time upon 403 Forbidden. 0 second means stop retry registration. Default is 0 sec. -->
+    <!-- Number 0 to 10080 -->
     <!-- Mandatory -->
     {{if P26202}}
     <P26202>{{P26202}}</P26202>
     {{else}}
-    <P26202>1200</P26202>
+    <P26202>0</P26202>
     {{endif}}
 
     <!-- Reregister before Expiration -->
@@ -6587,6 +8668,15 @@
     <P2599>{{P2599}}</P2599>
     {{else}}
     <P2599>3</P2599>
+    {{endif}}
+
+    <!-- Switch SIP Server When Keep-Alive Max Lost Is Reached. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    {{if P28909}}
+    <P28909>{{P28909}}</P28909>
+    {{else}}
+    <P28909>0</P28909>
     {{endif}}
 
     <!-- Local SIP port (default 7060) -->
@@ -6690,6 +8780,15 @@
     <P509>0</P509>
     {{endif}}
 
+    <!-- Subscribe Retry Wait Time upon 403 Forbidden. Default is 0. -->
+    <!-- Number 0 to 10080 -->
+    <!-- Mandatory -->
+    {{if P60168}}
+    <P60168>{{P60168}}</P60168>
+    {{else}}
+    <P60168>0</P60168>
+    {{endif}}
+
     <!-- Enable 100rel. 0 - No, 1 - Yes -->
     <!-- Number: 0 to 1 -->
     <!-- Mandatory -->
@@ -6708,7 +8807,7 @@
     <P563>0</P563>
     {{endif}}
 
-    <!-- Use Request Routing ID in SIP Headers, 0 - No, 1 - Yes -->
+    <!-- Use Routing ID in SIP Headers. 0 - No, 1 - Yes -->
     <!-- Number: 0,1 -->
     <!-- Mandatory -->
     {{if P4893}}
@@ -6778,10 +8877,23 @@
     <P29298>0</P29298>
     {{endif}}
 
+    <!-- Use P-Early-Media Header. 0 - No, 1 - Yes. Default 0. -->
+    <!-- Number: 0,1 -->
+    <!-- Mandatory -->
+    {{if P60272}}
+    <P60272>{{P60272}}</P60272>
+    {{else}}
+    <P60272>0</P60272>
+    {{endif}}
+
     <!-- SIP REGISTER Contact Header Uses. 0 - LAN Address, 1 - WAN Address -->
     <!-- Number: 0, 1 -->
     <!-- Mandatory -->
-    <!-- P4439=0 -->
+    {{if P4439}}
+    <P4439>{{P4439}}</P4439>
+    {{else}}
+    <P4439>0</P4439>
+    {{endif}}
 
     <!-- Caller ID Display. 0 - Auto, 1 - Disable, 2 - From Header -->
     <!-- Number: 0, 1, 2 -->
@@ -7040,6 +9152,15 @@
     <P4418>1</P4418>
     {{endif}}
 
+    <!-- Re-INVITE Upon CNG Count. Deafult is 0. -->
+    <!-- Number: 0 to 6 -->
+    <!-- Mandatory -->
+    {{if P28925}}
+    <P28925>{{P28925}}</P28925>
+    {{else}}
+    <P28925>0</P28925>
+    {{endif}}
+
     <!-- Enable Silence Detection for Fax Disconnect. 0 - No, 1 - Yes -->
     <!-- Number: 0 to 1 -->
     <!-- Mandatory -->
@@ -7049,12 +9170,21 @@
     <P4408>1</P4408>
     {{endif}}
 
+    <!-- T.38 Max Bit Rate. 1 - 4800bps, 2 -  9600bps, 3 - 14400bps. Default is 2. -->
+    <!-- Number: 0, 1, 2 -->
+    <!-- Mandatory -->
+    {{if P28915}}
+    <P28915>{{P28915}}</P28915>
+    {{else}}
+    <P28915>2</P28915>
+    {{endif}}
+
     <!-- Profile 3-Audio Settings -->
 
     <!-- Preferred DTMF Method 1 -->
     <!-- 100 - In-audio, 101 - RFC2833, 102 - SIP INFO -->
     <!-- Priority 1 -->
-    <!-- Number: 100 to 102 -->
+    <!-- Number: 100,101,102 -->
     <!-- Mandatory -->
     {{if P560}}
     <P560>{{P560}}</P560>
@@ -7064,7 +9194,7 @@
 
     <!-- Preferred DTMF Method 2 -->
     <!-- Priority 2 -->
-    <!-- Number: 100 to 102 -->
+    <!-- Number: 100,101,102 -->
     <!-- Mandatory -->
     {{if P561}}
     <P561>{{P561}}</P561>
@@ -7074,7 +9204,7 @@
 
     <!-- Preferred DTMF Method 3 -->
     <!-- Priority 3 -->
-    <!-- Number: 100 to 102 -->
+    <!-- Number: 100,101,102 -->
     <!-- Mandatory -->
     {{if P562}}
     <P562>{{P562}}</P562>
@@ -7133,6 +9263,51 @@
     <P28140>{{P28140}}</P28140>
     {{else}}
     <P28140>50</P28140>
+    {{endif}}
+
+    <!-- Inband DTMF Tx Gain. Default is 6. -->
+    <!-- Number: -12 to 12 -->
+    <!-- Mandatory -->
+    {{if P28774}}
+    <P28774>{{P28774}}</P28774>
+    {{else}}
+    <P28774>6</P28774>
+    {{endif}}
+
+    <!-- DSP DTMF Detector Min Level. Default is -25. -->
+    <!-- Number: -45 – 0 -->
+    <!-- Mandatory -->
+    {{if P28806}}
+    <P28806>{{P28806}}</P28806>
+    {{else}}
+    <P28806>-25</P28806>
+    {{endif}}
+
+    <!-- DSP DTMF Detector SNR. Default is 1. -->
+    <!-- Number: 0 - 2 -->
+    <!-- Mandatory -->
+    {{if P28810}}
+    <P28810>{{P28810}}</P28810>
+    {{else}}
+    <P28810>1</P28810>
+    {{endif}}
+
+    <!-- DSP DTMF Detector Deviation. Default is 25. -->
+    <!-- Number: 0 – 25 -->
+    <!-- Mandatory -->
+    {{if P28814}}
+    <P28814>{{P28814}}</P28814>
+    {{else}}
+    <P28814>25</P28814>
+    {{endif}}
+
+    <!-- DSP DTMF Detector Twist. Default is 5. -->
+    <!-- Number: 0 – 12 -->
+    <!-- Mandatory -->
+    {{if P28818}}
+    <P28818>{{P28818}}</P28818>
+    {{else}}
+    <P28818>5</P28818>
     {{endif}}
 
     <!-- Preferred Vocoder -->
@@ -7598,12 +9773,20 @@
     <P492>4</P492>
     {{endif}}
 
-    <!-- Offhook Auto-Dial Delay (default is 0) -->
+    <!-- Off-Hook Auto-Dial Delay (default is 0) -->
     <!-- String: 0 to 60 -->
     {{if P4047}}
     <P4047>{{P4047}}</P4047>
     {{else}}
     <P4047>0</P4047>
+    {{endif}}
+
+    <!-- Special Auto Dial number for an incomplete dial by user -->
+    <!-- String: Max Length: 64 characters -->
+    {{if P28920}}
+    <P28920>{{P28920}}</P28920>
+    {{else}}
+    <P28920></P28920>
     {{endif}}
 
     <!-- Allow Auto-Dial Config Per Port. 0 - Disabled, 1 - Enabled -->
@@ -7622,6 +9805,15 @@
     <P26262>{{P26262}}</P26262>
     {{else}}
     <P26262>1</P26262>
+    {{endif}}
+
+    <!-- RTP/RTCP Keep Alive On Hold. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    {{if P28841}}
+    <P28841>{{P28841}}</P28841>
+    {{else}}
+    <P28841>0</P28841>
     {{endif}}
 
     <!-- Disable Call Waiting. 0 - No, 1 - Yes -->
@@ -7705,8 +9897,8 @@
     <P669>0</P669>
     {{endif}}
 
-    <!-- Visual MWI type: 1 - FSK, 2 - Neon -->
-    <!-- Number: 1,2 -->
+    <!-- Visual MWI type: 1 - FSK, 2 - Neon, 3 - PR.Default is 1. -->
+    <!-- Number: 1,2,3 -->
     <!-- Mandatory -->
     {{if P4373}}
     <P4373>{{P4373}}</P4373>
@@ -7730,6 +9922,15 @@
     <P4565>{{P4565}}</P4565>
     {{else}}
     <P4565>0</P4565>
+    {{endif}}
+
+    <!-- Ringing Transfer. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    {{if P4822}}
+    <P4822>{{P4822}}</P4822>
+    {{else}}
+    <P4822>0</P4822>
     {{endif}}
 
     <!-- Send Hook Flash Event. 0 - No, 1 - Yes -->
@@ -7777,6 +9978,15 @@
     <P516>60</P516>
     {{endif}}
 
+    <!-- Ringback Tone at No Early Media. 0 - No, 1 - Yes. Default 0. -->
+    <!-- Number: 0,1 -->
+    <!-- Mandatory -->
+    {{if P60273}}
+    <P60273>{{P60273}}</P60273>
+    {{else}}
+    <P60273>0</P60273>
+    {{endif}}
+
     <!-- Delayed Call Forward Wait Time. Allowed range 1-120, in seconds. Default 20 seconds. -->
     <!-- Number: 1 to 120 -->
     <!-- Mandatory -->
@@ -7804,18 +10014,17 @@
     <P546>0</P546>
     {{endif}}
 
-    <!-- Replace Beginning '+' with 00 in Caller ID. 0 - No, 1 - Yes -->
-    <!-- Number: 0, 1 -->
-    <!-- Mandatory -->
-    {{if P29273}}
-    <P29273>{{P29273}}</P29273>
+    <!-- Replace Beginning '+' with 00 in Caller ID. -->
+    <!-- String: Number 0-9, Max Length: 6. -->
+    {{if P60283}}
+    <P60283>{{P60283}}</P60283>
     {{else}}
-    <P29273>0</P29273>
+    <P60283>0</P60283>
     {{endif}}
 
 
-    <!-- Hunting Group Type. 0 - Circular, 1 - Linear -->
-    <!-- Number: 0,1 -->
+    <!-- Hunting Group Type. 0 - Circular, 1 - Linear, 2 - Parallel. Default is 0. -->
+    <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
     {{if P4397}}
     <P4397>{{P4397}}</P4397>
@@ -8571,8 +10780,10 @@
     <P998></P998>
     {{endif}}
 
-    <!-- Prefer Primary SIP Server. 0 - No, 1 - Yes. -->
-    <!-- Number: 0,1 -->
+    <!-- Prefer Primary SIP Server. Default is 0. -->
+    <!-- 0 - No, 1 - Will register to primary server if failover server registration expires, -->
+    <!-- 2 - Will register to primary server if primary server responds. -->
+    <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
     {{if P4570}}
     <P4570>{{P4570}}</P4570>
@@ -8693,8 +10904,8 @@
     <P2610></P2610>
     {{endif}}
 
-    <!-- NAT Traversal . 0 - No, 1 - STUN, 2 - Keep-Alive, 3 - UPnP, 4 - VPN -->
-    <!-- Number: 0,1,2,3,4 -->
+    <!-- NAT Traversal. 0 - No, 1 - STUN, 2 - Keep-Alive, 3 - UPnP, 4 - Auto, 5 - VPN -->
+    <!-- Number: 0,1,2,3,4,5 -->
     <!-- Mandatory -->
     {{if P614}}
     <P614>{{P614}}</P614>
@@ -8722,13 +10933,22 @@
 
     <!-- Basic Settings -->
 
-    <!-- SIP Transport. 0 - UDP, 1 - TCP, 2 - TLS -->
+    <!-- SIP Transport. 0 - UDP, 1 - TCP, 2 - TLS/TCP -->
     <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
     {{if P4648}}
     <P4648>{{P4648}}</P4648>
     {{else}}
     <P4648>0</P4648>
+    {{endif}}
+
+	<!-- SIP URI Scheme When Using TLS. 0 - sip, 1 - sips. -->
+    <!-- Number: 0,1. Default is 1. -->
+    <!-- Mandatory -->
+    {{if P2629}}
+    <P2629>{{P2629}}</P2629>
+    {{else}}
+    <P2629>1</P2629>
     {{endif}}
 
     <!-- SIP Registration. 0 - No, 1 - Yes -->
@@ -8785,13 +11005,13 @@
     <P671>30</P671>
     {{endif}}
 
-    <!-- SIP Registration Failure Retry Wait Time upon 403 Forbidden. 0 second means stop retry registration. Default is 1200 sec. -->
-    <!-- Number 0 to 3600 -->
+    <!-- SIP Registration Failure Retry Wait Time upon 403 Forbidden. 0 second means stop retry registration. Default is 0 sec. -->
+    <!-- Number 0 to 10080 -->
     <!-- Mandatory -->
     {{if P26302}}
     <P26302>{{P26302}}</P26302>
     {{else}}
-    <P26302>1200</P26302>
+    <P26302>0</P26302>
     {{endif}}
 
     <!-- Reregister before Expiration -->
@@ -8828,6 +11048,15 @@
     <P2699>{{P2699}}</P2699>
     {{else}}
     <P2699>3</P2699>
+    {{endif}}
+
+    <!-- Switch SIP Server When Keep-Alive Max Lost Is Reached. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    {{if P28910}}
+    <P28910>{{P28910}}</P28910>
+    {{else}}
+    <P28910>0</P28910>
     {{endif}}
 
     <!-- Local SIP port (default 8060) -->
@@ -8931,6 +11160,14 @@
     <P615>0</P615>
     {{endif}}
 
+    <!-- Subscribe Retry Wait Time upon 403 Forbidden. Default is 0. -->
+    <!-- Number 0 to 10080 -->
+    {{if P60368}}
+    <P60368>{{P60368}}</P60368>
+    {{else}}
+    <P60368>0</P60368>
+    {{endif}}
+
     <!-- Enable 100rel. 0 - No, 1 - Yes -->
     <!-- Number: 0 to 1 -->
     <!-- Mandatory -->
@@ -8949,7 +11186,7 @@
     <P609>0</P609>
     {{endif}}
 
-    <!-- Use Request Routing ID in SIP Headers, 0 - No, 1 - Yes -->
+    <!-- Use Routing ID in SIP Headers. 0 - No, 1 - Yes -->
     <!-- Number: 0,1 -->
     <!-- Mandatory -->
     {{if P4894}}
@@ -9019,10 +11256,23 @@
     <P29398>0</P29398>
     {{endif}}
 
+    <!-- Use P-Early-Media Header. 0 - No, 1 - Yes. Default 0. -->
+    <!-- Number: 0,1 -->
+    <!-- Mandatory -->
+    {{if P60372}}
+    <P60372>{{P60372}}</P60372>
+    {{else}}
+    <P60372>0</P60372>
+    {{endif}}
+
     <!-- SIP REGISTER Contact Header Uses. 0 - LAN Address, 1 - WAN Address -->
     <!-- Number: 0, 1 -->
     <!-- Mandatory -->
-    <!-- P4440=0 -->
+    {{if P4440}}
+    <P4440>{{P4440}}</P4440>
+    {{else}}
+    <P4440>0</P4440>
+    {{endif}}
 
     <!-- Caller ID Display. 0 - Auto, 1 - Disable, 2 - From Header -->
     <!-- Number: 0, 1, 2 -->
@@ -9280,6 +11530,15 @@
     <P4419>1</P4419>
     {{endif}}
 
+    <!-- Re-INVITE Upon CNG Count. Deafult is 0. -->
+    <!-- Number: 0 to 6 -->
+    <!-- Mandatory -->
+    {{if P28926}}
+    <P28926>{{P28926}}</P28926>
+    {{else}}
+    <P28926>0</P28926>
+    {{endif}}
+
     <!-- Enable Silence Detection for Fax Disconnect. 0 - No, 1 - Yes -->
     <!-- Number: 0 to 1 -->
     <!-- Mandatory -->
@@ -9287,6 +11546,15 @@
     <P4409>{{P4409}}</P4409>
     {{else}}
     <P4409>1</P4409>
+    {{endif}}
+
+    <!-- T.38 Max Bit Rate. 1 - 4800bps, 2 -  9600bps, 3 - 14400bps. Default is 2. -->
+    <!-- Number: 0, 1, 2 -->
+    <!-- Mandatory -->
+    {{if P28916}}
+    <P28916>{{P28916}}</P28916>
+    {{else}}
+    <P28916>2</P28916>
     {{endif}}
 
     <!-- Profile 4-Audio Settings -->
@@ -9373,6 +11641,51 @@
     <P28141>{{P28141}}</P28141>
     {{else}}
     <P28141>50</P28141>
+    {{endif}}
+
+    <!-- Inband DTMF Tx Gain. Default is 6. -->
+    <!-- Number: -12 to 12 -->
+    <!-- Mandatory -->
+    {{if P28775}}
+    <P28775>{{P28775}}</P28775>
+    {{else}}
+    <P28775>6</P28775>
+    {{endif}}
+
+    <!-- DSP DTMF Detector Min Level. Default is -25. -->
+    <!-- Number: -45 – 0 -->
+    <!-- Mandatory -->
+    {{if P28807}}
+    <P28807>{{P28807}}</P28807>
+    {{else}}
+    <P28807>-25</P28807>
+    {{endif}}
+
+    <!-- DSP DTMF Detector SNR. Default is 1. -->
+    <!-- Number: 0 - 2 -->
+    <!-- Mandatory -->
+    {{if P28811}}
+    <P28811>{{P28811}}</P28811>
+    {{else}}
+    <P28811>1</P28811>
+    {{endif}}
+
+    <!-- DSP DTMF Detector Deviation. Default is 25. -->
+    <!-- Number: 0 – 25 -->
+    <!-- Mandatory -->
+    {{if P28815}}
+    <P28815>{{P28815}}</P28815>
+    {{else}}
+    <P28815>25</P28815>
+    {{endif}}
+
+    <!-- DSP DTMF Detector Twist. Default is 5. -->
+    <!-- Number: 0 – 12 -->
+    <!-- Mandatory -->
+    {{if P28819}}
+    <P28819>{{P28819}}</P28819>
+    {{else}}
+    <P28819>5</P28819>
     {{endif}}
 
     <!-- Preferred Vocoder -->
@@ -9830,12 +12143,20 @@
     <P4588>4</P4588>
     {{endif}}
 
-    <!-- Offhook Auto-Dial Delay (default is 0) -->
+    <!-- Off-Hook Auto-Dial Delay (default is 0) -->
     <!-- String: 0 to 60 -->
     {{if P4048}}
     <P4048>{{P4048}}</P4048>
     {{else}}
     <P4048>0</P4048>
+    {{endif}}
+
+    <!-- Special Auto Dial number for an incomplete dial by user -->
+    <!-- String: Max Length: 64 characters -->
+    {{if P28921}}
+    <P28921>{{P28921}}</P28921>
+    {{else}}
+    <P28921></P28921>
     {{endif}}
 
     <!-- Allow Auto-Dial Config Per Port. 0 - Disabled, 1 - Enabled -->
@@ -9854,6 +12175,15 @@
     <P26362>{{P26362}}</P26362>
     {{else}}
     <P26362>1</P26362>
+    {{endif}}
+
+    <!-- RTP/RTCP Keep Alive On Hold. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    {{if P28842}}
+    <P28842>{{P28842}}</P28842>
+    {{else}}
+    <P28842>0</P28842>
     {{endif}}
 
     <!-- Disable Call Waiting. 0 - No, 1 - Yes -->
@@ -9937,8 +12267,8 @@
     <P4375>0</P4375>
     {{endif}}
 
-    <!-- Visual MWI type: 1 - FSK, 2 - Neon -->
-    <!-- Number: 1,2 -->
+    <!-- Visual MWI type: 1 - FSK, 2 - Neon, 3 - PR. Default is 1. -->
+    <!-- Number: 1,2,3 -->
     <!-- Mandatory -->
     {{if P4374}}
     <P4374>{{P4374}}</P4374>
@@ -9962,6 +12292,15 @@
     <P4566>{{P4566}}</P4566>
     {{else}}
     <P4566>0</P4566>
+    {{endif}}
+
+    <!-- Ringing Transfer. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    {{if P4823}}
+    <P4823>{{P4823}}</P4823>
+    {{else}}
+    <P4823>0</P4823>
     {{endif}}
 
     <!-- Send Hook Flash Event. 0 - No, 1 - Yes -->
@@ -10009,6 +12348,15 @@
     <P676>60</P676>
     {{endif}}
 
+    <!-- Ringback Tone at No Early Media. 0 - No, 1 - Yes. Default 0. -->
+    <!-- Number: 0,1 -->
+    <!-- Mandatory -->
+    {{if P60373}}
+    <P60373>{{P60373}}</P60373>
+    {{else}}
+    <P60373>0</P60373>
+    {{endif}}
+
     <!-- Delayed Call Forward Wait Time. Allowed range 1-120, in seconds. Default 20 seconds. -->
     <!-- Number: 1 to 120 -->
     <!-- Mandatory -->
@@ -10036,18 +12384,17 @@
     <P646>0</P646>
     {{endif}}
 
-    <!-- Replace Beginning '+' with 00 in Caller ID. 0 - No, 1 - Yes -->
-    <!-- Number: 0, 1 -->
-    <!-- Mandatory -->
-    {{if P29373}}
-    <P29373>{{P29373}}</P29373>
+    <!-- Replace Beginning '+' with 00 in Caller ID. -->
+    <!-- String: Number 0-9, Max Length: 6. -->
+    {{if P60383}}
+    <P60383>{{P60383}}</P60383>
     {{else}}
-    <P29373>0</P29373>
+    <P60383>0</P60383>
     {{endif}}
 
 
-    <!-- Hunting Group Type. 0 - Circular, 1 - Linear -->
-    <!-- Number: 0,1 -->
+    <!-- Hunting Group Type. 0 - Circular, 1 - Linear, 2 - Parallel. Default is 0. -->
+    <!-- Number: 0,1,2 -->
     <!-- Mandatory -->
     {{if P4398}}
     <P4398>{{P4398}}</P4398>
@@ -10840,6 +13187,17 @@
     {{else}}
     <P4669></P4669>
     {{endif}}
+    {{if P28859}}
+    <P28859>{{P28859}}</P28859>
+    {{else}}
+    <P28859>0</P28859>
+    {{endif}}
+    {{if P24800}}
+    <P24800>{{P24800}}</P24800>
+    {{else}}
+    <P24800></P24800>
+    {{endif}}
+
 
     {{if P4521}}
     <P4521>{{P4521}}</P4521>
@@ -10888,6 +13246,17 @@
     {{else}}
     <P4670></P4670>
     {{endif}}
+    {{if P28860}}
+    <P28860>{{P28860}}</P28860>
+    {{else}}
+    <P28860>0</P28860>
+    {{endif}}
+    {{if P24801}}
+    <P24801>{{P24801}}</P24801>
+    {{else}}
+    <P24801></P24801>
+    {{endif}}
+
 
     {{if P4522}}
     <P4522>{{P4522}}</P4522>
@@ -10936,6 +13305,17 @@
     {{else}}
     <P4671></P4671>
     {{endif}}
+    {{if P28861}}
+    <P28861>{{P28861}}</P28861>
+    {{else}}
+    <P28861>0</P28861>
+    {{endif}}
+    {{if P24802}}
+    <P24802>{{P24802}}</P24802>
+    {{else}}
+    <P24802></P24802>
+    {{endif}}
+
 
     {{if P4523}}
     <P4523>{{P4523}}</P4523>
@@ -10984,6 +13364,17 @@
     {{else}}
     <P4672></P4672>
     {{endif}}
+    {{if P28862}}
+    <P28862>{{P28862}}</P28862>
+    {{else}}
+    <P28862>0</P28862>
+    {{endif}}
+    {{if P24803}}
+    <P24803>{{P24803}}</P24803>
+    {{else}}
+    <P24803></P24803>
+    {{endif}}
+
 
     {{if P4524}}
     <P4524>{{P4524}}</P4524>
@@ -11032,6 +13423,17 @@
     {{else}}
     <P4673></P4673>
     {{endif}}
+    {{if P28863}}
+    <P28863>{{P28863}}</P28863>
+    {{else}}
+    <P28863>0</P28863>
+    {{endif}}
+    {{if P24804}}
+    <P24804>{{P24804}}</P24804>
+    {{else}}
+    <P24804></P24804>
+    {{endif}}
+
 
     {{if P4525}}
     <P4525>{{P4525}}</P4525>
@@ -11080,6 +13482,17 @@
     {{else}}
     <P4674></P4674>
     {{endif}}
+    {{if P28864}}
+    <P28864>{{P28864}}</P28864>
+    {{else}}
+    <P28864>0</P28864>
+    {{endif}}
+    {{if P24805}}
+    <P24805>{{P24805}}</P24805>
+    {{else}}
+    <P24805></P24805>
+    {{endif}}
+
 
     {{if P4526}}
     <P4526>{{P4526}}</P4526>
@@ -11128,6 +13541,17 @@
     {{else}}
     <P4675></P4675>
     {{endif}}
+    {{if P28865}}
+    <P28865>{{P28865}}</P28865>
+    {{else}}
+    <P28865>0</P28865>
+    {{endif}}
+    {{if P24806}}
+    <P24806>{{P24806}}</P24806>
+    {{else}}
+    <P24806></P24806>
+    {{endif}}
+
 
     {{if P4527}}
     <P4527>{{P4527}}</P4527>
@@ -11176,6 +13600,17 @@
     {{else}}
     <P4676></P4676>
     {{endif}}
+    {{if P28866}}
+    <P28866>{{P28866}}</P28866>
+    {{else}}
+    <P28866>0</P28866>
+    {{endif}}
+    {{if P24807}}
+    <P24807>{{P24807}}</P24807>
+    {{else}}
+    <P24807></P24807>
+    {{endif}}
+
 
     {{if P4528}}
     <P4528>{{P4528}}</P4528>
@@ -11224,6 +13659,17 @@
     {{else}}
     <P4677></P4677>
     {{endif}}
+    {{if P28867}}
+    <P28867>{{P28867}}</P28867>
+    {{else}}
+    <P28867>0</P28867>
+    {{endif}}
+    {{if P24808}}
+    <P24808>{{P24808}}</P24808>
+    {{else}}
+    <P24808></P24808>
+    {{endif}}
+
 
     {{if P4529}}
     <P4529>{{P4529}}</P4529>
@@ -11272,6 +13718,17 @@
     {{else}}
     <P4678></P4678>
     {{endif}}
+    {{if P28868}}
+    <P28868>{{P28868}}</P28868>
+    {{else}}
+    <P28868>0</P28868>
+    {{endif}}
+    {{if P24809}}
+    <P24809>{{P24809}}</P24809>
+    {{else}}
+    <P24809></P24809>
+    {{endif}}
+
 
     {{if P4530}}
     <P4530>{{P4530}}</P4530>
@@ -11320,6 +13777,17 @@
     {{else}}
     <P4679></P4679>
     {{endif}}
+    {{if P28869}}
+    <P28869>{{P28869}}</P28869>
+    {{else}}
+    <P28869>0</P28869>
+    {{endif}}
+    {{if P24810}}
+    <P24810>{{P24810}}</P24810>
+    {{else}}
+    <P24810></P24810>
+    {{endif}}
+
 
     {{if P4531}}
     <P4531>{{P4531}}</P4531>
@@ -11368,6 +13836,17 @@
     {{else}}
     <P4680></P4680>
     {{endif}}
+    {{if P28870}}
+    <P28870>{{P28870}}</P28870>
+    {{else}}
+    <P28870>0</P28870>
+    {{endif}}
+    {{if P24811}}
+    <P24811>{{P24811}}</P24811>
+    {{else}}
+    <P24811></P24811>
+    {{endif}}
+
 
     {{if P4532}}
     <P4532>{{P4532}}</P4532>
@@ -11416,6 +13895,17 @@
     {{else}}
     <P4681></P4681>
     {{endif}}
+    {{if P28871}}
+    <P28871>{{P28871}}</P28871>
+    {{else}}
+    <P28871>0</P28871>
+    {{endif}}
+    {{if P24812}}
+    <P24812>{{P24812}}</P24812>
+    {{else}}
+    <P24812></P24812>
+    {{endif}}
+
 
     {{if P4533}}
     <P4533>{{P4533}}</P4533>
@@ -11464,6 +13954,17 @@
     {{else}}
     <P4682></P4682>
     {{endif}}
+    {{if P28872}}
+    <P28872>{{P28872}}</P28872>
+    {{else}}
+    <P28872>0</P28872>
+    {{endif}}
+    {{if P24813}}
+    <P24813>{{P24813}}</P24813>
+    {{else}}
+    <P24813></P24813>
+    {{endif}}
+
 
     {{if P4534}}
     <P4534>{{P4534}}</P4534>
@@ -11512,6 +14013,17 @@
     {{else}}
     <P4683></P4683>
     {{endif}}
+    {{if P28873}}
+    <P28873>{{P28873}}</P28873>
+    {{else}}
+    <P28873>0</P28873>
+    {{endif}}
+    {{if P24814}}
+    <P24814>{{P24814}}</P24814>
+    {{else}}
+    <P24814></P24814>
+    {{endif}}
+
 
     {{if P4535}}
     <P4535>{{P4535}}</P4535>
@@ -11560,6 +14072,17 @@
     {{else}}
     <P4684></P4684>
     {{endif}}
+    {{if P28874}}
+    <P28874>{{P28874}}</P28874>
+    {{else}}
+    <P28874>0</P28874>
+    {{endif}}
+    {{if P24815}}
+    <P24815>{{P24815}}</P24815>
+    {{else}}
+    <P24815></P24815>
+    {{endif}}
+
 
     {{if P4536}}
     <P4536>{{P4536}}</P4536>
@@ -11608,6 +14131,17 @@
     {{else}}
     <P4685></P4685>
     {{endif}}
+    {{if P28875}}
+    <P28875>{{P28875}}</P28875>
+    {{else}}
+    <P28875>0</P28875>
+    {{endif}}
+    {{if P24816}}
+    <P24816>{{P24816}}</P24816>
+    {{else}}
+    <P24816></P24816>
+    {{endif}}
+
 
     {{if P4537}}
     <P4537>{{P4537}}</P4537>
@@ -11656,6 +14190,17 @@
     {{else}}
     <P4686></P4686>
     {{endif}}
+    {{if P28876}}
+    <P28876>{{P28876}}</P28876>
+    {{else}}
+    <P28876>0</P28876>
+    {{endif}}
+    {{if P24817}}
+    <P24817>{{P24817}}</P24817>
+    {{else}}
+    <P24817></P24817>
+    {{endif}}
+
 
     {{if P4538}}
     <P4538>{{P4538}}</P4538>
@@ -11704,6 +14249,17 @@
     {{else}}
     <P4687></P4687>
     {{endif}}
+    {{if P28877}}
+    <P28877>{{P28877}}</P28877>
+    {{else}}
+    <P28877>0</P28877>
+    {{endif}}
+    {{if P24818}}
+    <P24818>{{P24818}}</P24818>
+    {{else}}
+    <P24818></P24818>
+    {{endif}}
+
 
     {{if P4539}}
     <P4539>{{P4539}}</P4539>
@@ -11752,6 +14308,17 @@
     {{else}}
     <P4688></P4688>
     {{endif}}
+    {{if P28878}}
+    <P28878>{{P28878}}</P28878>
+    {{else}}
+    <P28878>0</P28878>
+    {{endif}}
+    {{if P24819}}
+    <P24819>{{P24819}}</P24819>
+    {{else}}
+    <P24819></P24819>
+    {{endif}}
+
 
     {{if P4540}}
     <P4540>{{P4540}}</P4540>
@@ -11800,6 +14367,17 @@
     {{else}}
     <P4689></P4689>
     {{endif}}
+    {{if P28879}}
+    <P28879>{{P28879}}</P28879>
+    {{else}}
+    <P28879>0</P28879>
+    {{endif}}
+    {{if P24820}}
+    <P24820>{{P24820}}</P24820>
+    {{else}}
+    <P24820></P24820>
+    {{endif}}
+
 
     {{if P4541}}
     <P4541>{{P4541}}</P4541>
@@ -11848,6 +14426,17 @@
     {{else}}
     <P4690></P4690>
     {{endif}}
+    {{if P28880}}
+    <P28880>{{P28880}}</P28880>
+    {{else}}
+    <P28880>0</P28880>
+    {{endif}}
+    {{if P24821}}
+    <P24821>{{P24821}}</P24821>
+    {{else}}
+    <P24821></P24821>
+    {{endif}}
+
 
     {{if P4542}}
     <P4542>{{P4542}}</P4542>
@@ -11896,6 +14485,17 @@
     {{else}}
     <P4691></P4691>
     {{endif}}
+    {{if P28881}}
+    <P28881>{{P28881}}</P28881>
+    {{else}}
+    <P28881>0</P28881>
+    {{endif}}
+    {{if P24822}}
+    <P24822>{{P24822}}</P24822>
+    {{else}}
+    <P24822></P24822>
+    {{endif}}
+
 
     {{if P4543}}
     <P4543>{{P4543}}</P4543>
@@ -11944,6 +14544,17 @@
     {{else}}
     <P4692></P4692>
     {{endif}}
+    {{if P28882}}
+    <P28882>{{P28882}}</P28882>
+    {{else}}
+    <P28882>0</P28882>
+    {{endif}}
+    {{if P24823}}
+    <P24823>{{P24823}}</P24823>
+    {{else}}
+    <P24823></P24823>
+    {{endif}}
+
 
     {{if P4544}}
     <P4544>{{P4544}}</P4544>
@@ -11992,6 +14603,17 @@
     {{else}}
     <P4693></P4693>
     {{endif}}
+    {{if P28883}}
+    <P28883>{{P28883}}</P28883>
+    {{else}}
+    <P28883>0</P28883>
+    {{endif}}
+    {{if P24824}}
+    <P24824>{{P24824}}</P24824>
+    {{else}}
+    <P24824></P24824>
+    {{endif}}
+
 
     {{if P4545}}
     <P4545>{{P4545}}</P4545>
@@ -12041,6 +14663,17 @@
     {{else}}
     <P4694></P4694>
     {{endif}}
+    {{if P28884}}
+    <P28884>{{P28884}}</P28884>
+    {{else}}
+    <P28884>0</P28884>
+    {{endif}}
+    {{if P24825}}
+    <P24825>{{P24825}}</P24825>
+    {{else}}
+    <P24825></P24825>
+    {{endif}}
+
 
     {{if P4546}}
     <P4546>{{P4546}}</P4546>
@@ -12089,6 +14722,17 @@
     {{else}}
     <P4695></P4695>
     {{endif}}
+    {{if P28885}}
+    <P28885>{{P28885}}</P28885>
+    {{else}}
+    <P28885>0</P28885>
+    {{endif}}
+    {{if P24826}}
+    <P24826>{{P24826}}</P24826>
+    {{else}}
+    <P24826></P24826>
+    {{endif}}
+
 
     {{if P4547}}
     <P4547>{{P4547}}</P4547>
@@ -12137,6 +14781,17 @@
     {{else}}
     <P4696></P4696>
     {{endif}}
+    {{if P28886}}
+    <P28886>{{P28886}}</P28886>
+    {{else}}
+    <P28886>0</P28886>
+    {{endif}}
+    {{if P24827}}
+    <P24827>{{P24827}}</P24827>
+    {{else}}
+    <P24827></P24827>
+    {{endif}}
+
 
     {{if P4548}}
     <P4548>{{P4548}}</P4548>
@@ -12185,6 +14840,17 @@
     {{else}}
     <P4697></P4697>
     {{endif}}
+    {{if P28887}}
+    <P28887>{{P28887}}</P28887>
+    {{else}}
+    <P28887>0</P28887>
+    {{endif}}
+    {{if P24828}}
+    <P24828>{{P24828}}</P24828>
+    {{else}}
+    <P24828></P24828>
+    {{endif}}
+
 
     {{if P4549}}
     <P4549>{{P4549}}</P4549>
@@ -12233,6 +14899,17 @@
     {{else}}
     <P4698></P4698>
     {{endif}}
+    {{if P28888}}
+    <P28888>{{P28888}}</P28888>
+    {{else}}
+    <P28888>0</P28888>
+    {{endif}}
+    {{if P24829}}
+    <P24829>{{P24829}}</P24829>
+    {{else}}
+    <P24829></P24829>
+    {{endif}}
+
 
     {{if P4808}}
     <P4808>{{P4808}}</P4808>
@@ -12281,6 +14958,17 @@
     {{else}}
     <P4699></P4699>
     {{endif}}
+    {{if P28889}}
+    <P28889>{{P28889}}</P28889>
+    {{else}}
+    <P28889>0</P28889>
+    {{endif}}
+    {{if P24830}}
+    <P24830>{{P24830}}</P24830>
+    {{else}}
+    <P24830></P24830>
+    {{endif}}
+
 
     {{if P4809}}
     <P4809>{{P4809}}</P4809>
@@ -12329,6 +15017,17 @@
     {{else}}
     <P4700></P4700>
     {{endif}}
+    {{if P28890}}
+    <P28890>{{P28890}}</P28890>
+    {{else}}
+    <P28890>0</P28890>
+    {{endif}}
+    {{if P24831}}
+    <P24831>{{P24831}}</P24831>
+    {{else}}
+    <P24831></P24831>
+    {{endif}}
+
 
     {{if P4810}}
     <P4810>{{P4810}}</P4810>
@@ -12377,6 +15076,17 @@
     {{else}}
     <P21704></P21704>
     {{endif}}
+    {{if P28891}}
+    <P28891>{{P28891}}</P28891>
+    {{else}}
+    <P28891>0</P28891>
+    {{endif}}
+    {{if P24832}}
+    <P24832>{{P24832}}</P24832>
+    {{else}}
+    <P24832></P24832>
+    {{endif}}
+
 
     {{if P21512}}
     <P21512>{{P21512}}</P21512>
@@ -12425,6 +15135,17 @@
     {{else}}
     <P21705></P21705>
     {{endif}}
+    {{if P28892}}
+    <P28892>{{P28892}}</P28892>
+    {{else}}
+    <P28892>0</P28892>
+    {{endif}}
+    {{if P24833}}
+    <P24833>{{P24833}}</P24833>
+    {{else}}
+    <P24833></P24833>
+    {{endif}}
+
 
     {{if P21513}}
     <P21513>{{P21513}}</P21513>
@@ -12473,6 +15194,17 @@
     {{else}}
     <P21706></P21706>
     {{endif}}
+    {{if P28893}}
+    <P28893>{{P28893}}</P28893>
+    {{else}}
+    <P28893>0</P28893>
+    {{endif}}
+    {{if P24834}}
+    <P24834>{{P24834}}</P24834>
+    {{else}}
+    <P24834></P24834>
+    {{endif}}
+
 
     {{if P21514}}
     <P21514>{{P21514}}</P21514>
@@ -12521,6 +15253,17 @@
     {{else}}
     <P21707></P21707>
     {{endif}}
+    {{if P28894}}
+    <P28894>{{P28894}}</P28894>
+    {{else}}
+    <P28894>0</P28894>
+    {{endif}}
+    {{if P24835}}
+    <P24835>{{P24835}}</P24835>
+    {{else}}
+    <P24835></P24835>
+    {{endif}}
+
 
     {{if P21515}}
     <P21515>{{P21515}}</P21515>
@@ -12569,6 +15312,17 @@
     {{else}}
     <P21708></P21708>
     {{endif}}
+    {{if P28895}}
+    <P28895>{{P28895}}</P28895>
+    {{else}}
+    <P28895>0</P28895>
+    {{endif}}
+    {{if P24836}}
+    <P24836>{{P24836}}</P24836>
+    {{else}}
+    <P24836></P24836>
+    {{endif}}
+
 
     {{if P21516}}
     <P21516>{{P21516}}</P21516>
@@ -12617,6 +15371,17 @@
     {{else}}
     <P21709></P21709>
     {{endif}}
+    {{if P28896}}
+    <P28896>{{P28896}}</P28896>
+    {{else}}
+    <P28896>0</P28896>
+    {{endif}}
+    {{if P24837}}
+    <P24837>{{P24837}}</P24837>
+    {{else}}
+    <P24837></P24837>
+    {{endif}}
+
 
     {{if P21517}}
     <P21517>{{P21517}}</P21517>
@@ -12665,6 +15430,17 @@
     {{else}}
     <P21710></P21710>
     {{endif}}
+    {{if P28897}}
+    <P28897>{{P28897}}</P28897>
+    {{else}}
+    <P28897>0</P28897>
+    {{endif}}
+    {{if P24838}}
+    <P24838>{{P24838}}</P24838>
+    {{else}}
+    <P24838></P24838>
+    {{endif}}
+
 
     {{if P21518}}
     <P21518>{{P21518}}</P21518>
@@ -12713,6 +15489,17 @@
     {{else}}
     <P21711></P21711>
     {{endif}}
+    {{if P28898}}
+    <P28898>{{P28898}}</P28898>
+    {{else}}
+    <P28898>0</P28898>
+    {{endif}}
+    {{if P24839}}
+    <P24839>{{P24839}}</P24839>
+    {{else}}
+    <P24839></P24839>
+    {{endif}}
+
 
     {{if P21519}}
     <P21519>{{P21519}}</P21519>
@@ -12761,6 +15548,17 @@
     {{else}}
     <P21712></P21712>
     {{endif}}
+    {{if P28899}}
+    <P28899>{{P28899}}</P28899>
+    {{else}}
+    <P28899>0</P28899>
+    {{endif}}
+    {{if P24840}}
+    <P24840>{{P24840}}</P24840>
+    {{else}}
+    <P24840></P24840>
+    {{endif}}
+
 
     {{if P21520}}
     <P21520>{{P21520}}</P21520>
@@ -12809,6 +15607,17 @@
     {{else}}
     <P21713></P21713>
     {{endif}}
+    {{if P28900}}
+    <P28900>{{P28900}}</P28900>
+    {{else}}
+    <P28900>0</P28900>
+    {{endif}}
+    {{if P24841}}
+    <P24841>{{P24841}}</P24841>
+    {{else}}
+    <P24841></P24841>
+    {{endif}}
+
 
     {{if P21521}}
     <P21521>{{P21521}}</P21521>
@@ -12857,6 +15666,17 @@
     {{else}}
     <P21714></P21714>
     {{endif}}
+    {{if P28901}}
+    <P28901>{{P28901}}</P28901>
+    {{else}}
+    <P28901>0</P28901>
+    {{endif}}
+    {{if P24842}}
+    <P24842>{{P24842}}</P24842>
+    {{else}}
+    <P24842></P24842>
+    {{endif}}
+
 
     {{if P21522}}
     <P21522>{{P21522}}</P21522>
@@ -12905,6 +15725,17 @@
     {{else}}
     <P21715></P21715>
     {{endif}}
+    {{if P28902}}
+    <P28902>{{P28902}}</P28902>
+    {{else}}
+    <P28902>0</P28902>
+    {{endif}}
+    {{if P24843}}
+    <P24843>{{P24843}}</P24843>
+    {{else}}
+    <P24843></P24843>
+    {{endif}}
+
 
     {{if P21523}}
     <P21523>{{P21523}}</P21523>
@@ -12953,6 +15784,17 @@
     {{else}}
     <P21716></P21716>
     {{endif}}
+    {{if P28903}}
+    <P28903>{{P28903}}</P28903>
+    {{else}}
+    <P28903>0</P28903>
+    {{endif}}
+    {{if P24844}}
+    <P24844>{{P24844}}</P24844>
+    {{else}}
+    <P24844></P24844>
+    {{endif}}
+
 
     {{if P21524}}
     <P21524>{{P21524}}</P21524>
@@ -13001,6 +15843,17 @@
     {{else}}
     <P21717></P21717>
     {{endif}}
+    {{if P28904}}
+    <P28904>{{P28904}}</P28904>
+    {{else}}
+    <P28904>0</P28904>
+    {{endif}}
+    {{if P24845}}
+    <P24845>{{P24845}}</P24845>
+    {{else}}
+    <P24845></P24845>
+    {{endif}}
+
 
     {{if P21525}}
     <P21525>{{P21525}}</P21525>
@@ -13049,6 +15902,17 @@
     {{else}}
     <P21718></P21718>
     {{endif}}
+    {{if P28905}}
+    <P28905>{{P28905}}</P28905>
+    {{else}}
+    <P28905>0</P28905>
+    {{endif}}
+    {{if P24846}}
+    <P24846>{{P24846}}</P24846>
+    {{else}}
+    <P24846></P24846>
+    {{endif}}
+
 
     {{if P21526}}
     <P21526>{{P21526}}</P21526>
@@ -13097,6 +15961,17 @@
     {{else}}
     <P21719></P21719>
     {{endif}}
+    {{if P28906}}
+    <P28906>{{P28906}}</P28906>
+    {{else}}
+    <P28906>0</P28906>
+    {{endif}}
+    {{if P24847}}
+    <P24847>{{P24847}}</P24847>
+    {{else}}
+    <P24847></P24847>
+    {{endif}}
+
 
     {{if P21527}}
     <P21527>{{P21527}}</P21527>
@@ -13134,6 +16009,11 @@
     <!-- Number:0,1 -->
     <!-- Mandatory -->
     <!-- P8616=0 -->
+
+    <!-- Syslog Setting and Internal Logs Protection. 0 - No, 1 - Yes. Default is 0. -->
+    <!-- Number: 0, 1 -->
+    <!-- Mandatory -->
+    <!-- P82307 = 0 -->
     {{if P35}}
     <P35>{{P35}}</P35>
     {{else}}
